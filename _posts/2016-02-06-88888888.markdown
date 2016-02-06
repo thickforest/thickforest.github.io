@@ -1,8 +1,0 @@
----
-layout: post
-title:  "8888888888"
-date:   2016-02-06 13:06:42 +0800
-categories: jekyll update
----
-
-<h1>88888</h1>
