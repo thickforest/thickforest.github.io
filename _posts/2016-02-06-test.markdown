@@ -4,7 +4,7 @@ title:  "Test"
 date:   2016-02-06 08:48:42 +0800
 categories: jekyll update
 ---
-Just for Test
+JUST FOR TEST
 
 {% highlight c %}
 #include <stdio.h>
