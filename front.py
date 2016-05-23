@@ -12,10 +12,10 @@ def init():
 	frm_L = Frame(root)
 	frm_L.pack(side=LEFT)
 	mobile_nos = StringVar()
-	lb_char = Listbox(frm_L, selectmode=MULTIPLE, listvariable = mobile_nos, width=10, height=16)
+	lb_char = Listbox(frm_L, selectmode=EXTENDED, listvariable = mobile_nos, width=10, height=16)
 	lb_char.pack(side = LEFT)
 	for i in range(100):
-		lb_char.insert(END, str(i))
+		lb_char.insert(END, str(i*i))
 	scrl_char = Scrollbar(frm_L)
         scrl_char.pack(side=RIGHT, fill=Y)
         lb_char.configure(yscrollcommand = scrl_char.set)
@@ -33,6 +33,7 @@ def init():
 	menu2.pack(side = RIGHT)
 
 	def printinfo(event):
+		debug()
 		print lb_char.curselection()
 		print list1.get()
 		print list2.get()
