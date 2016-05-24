@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Expires: Tue, 17 May 2016 23:23:22 GMT
+Date: Mon, 02 May 2016 23:23:22 GMT
+Server: nginx/1.4.2
+Content-Type: application/x-javascript
+Last-Modified: Wed, 03 Feb 2016 08:35:06 GMT
+Cache-Control: max-age=1296000
+Age: 1
+X-Via: 1.1 sdta234:0 (Cdn Cache Server V2.0)
+Connection: close
+Content-Length: %d
+

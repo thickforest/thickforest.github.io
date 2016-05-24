@@ -1,0 +1,16 @@
+HTTP/1.1 200 OK
+Server: WeiBo
+Date: Sat, 14 May 2016 08:45:04 GMT
+Content-Type: text/html
+Connection: close
+Vary: Accept-Encoding
+Expires: Mon, 26 Jul 1997 05:00:00 GMT
+Last-Modified: Sat, 14 May 2016 08:45:04 GMT
+Cache-Control: no-cache, must-revalidate
+Pramga: no-cache
+Set-Cookie: lang=en-us; expires=Sun, 14-May-2017 08:45:04 GMT
+DPOOL_HEADER: surtur175
+LB_HEADER: alice50
+Content-Length: 119
+
+{"code":"100000","data":{"id":"","state":true,"type":"ok","code":"100000","action":"io","msg":"","iodata":""},"msg":""}
