@@ -1,0 +1,27 @@
+DEP原理
+(1) cat /proc/<PID>/maps 有E没E
+(2) gcc test.c (默认开启DEP) ||  gcc --fno-xxxx -execstack test.c (关闭DEP) ， readelf -l a.out 区别
+
+讲解 一个缓冲区溢出漏洞
+如开启DEP,运行[python -c '\x00\x40...' | a.out] 报错 Segments Fault !!
+关闭DEP，可运行黑客的shellcode
+
+ALRS原理
+cat /proc/<PID>/maps 运行两次，加载段起始地址不同
+
+内核若关闭ALRS，那么黑客将直到libc.so的起始加载地址，进而知道 system函数地址 很容易调用system('/bin/sh') 弹出一个shell
+举例:
+#include <stdio.h>
+void vulnerable_function() {
+    char buf[128];
+    read(STDIN_FILENO, buf, 512);
+}
+
+int main(int argc, char** argv) {
+    write(STDOUT_FILENO, "Hello, World\n", 13);
+    vulnerable_function();
+}
+甚至执行 socket.write socket.read ... 执行socket主动连接
+
+若开启ALRS，则黑客第一步需要通过其他手段先得到 libc.so的起始加载地址
+需要先write( got_write) 得到write函数的加载地址，然后根据write函数和system函数的相对地址，得到system函数的加载地址
