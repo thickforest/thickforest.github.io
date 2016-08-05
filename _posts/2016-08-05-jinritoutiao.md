@@ -1,3 +1,9 @@
+---
+layout: post
+title:  "今日头条!"
+date:   2016-08-05 17:01:42 +0800
+categories: 今日头条
+---
 ![alt Ubuntu | 如何加快开机启动](http://p1.pstatp.com/large/ac800073da9b5550968)
 自从将公司电脑的Ubuntu系统升级到了Ubuntu 16.04 (之前是15.04), 每次开机竟然耗时2分钟左右, 简直不能忍! 咋能向Windows看齐(Windows都没这么慢好嘛), 话说以前的Macbook Pro高配开机只要2秒钟...
 那么如何找出拖慢开机速度的元凶并将其禁用呢?
