@@ -4,7 +4,7 @@ title:  "今日头条!"
 date:   2016-08-05 17:01:42 +0800
 categories: 今日头条
 ---
-!(http://p1.pstatp.com/large/ac800073da9b5550968)
+![](http://p1.pstatp.com/large/ac800073da9b5550968)
 
 自从将公司电脑的Ubuntu系统升级到了Ubuntu 16.04 (之前是15.04), 每次开机竟然耗时2分钟左右, 简直不能忍! 咋能向Windows看齐(Windows都没这么慢好嘛), 话说以前的Macbook Pro高配开机只要2秒钟...
 
@@ -18,7 +18,7 @@ man systemd-analyze
 
 来看看:
 
-!(http://p3.pstatp.com/large/b0a00043c640655af2b)
+![](http://p3.pstatp.com/large/b0a00043c640655af2b)
 
 其中, 对我们比较有用的参数就是blame。
 
@@ -34,7 +34,7 @@ git blame
 
 systemd-analyze blame
 
-!(http://p3.pstatp.com/large/b0d0004f63841d29b28)
+![](http://p3.pstatp.com/large/b0d0004f63841d29b28)
 
 可以看到, 最慢的启动项是NetworkManager-wait-online.service, 竟然用了30秒, 不能忍!
 
@@ -42,13 +42,13 @@ systemd-analyze blame
 
 sudo systemctl disable NetworkManager-wait-online.service
 
-!(http://p3.pstatp.com/large/ac70007fa3b7e039b2d)
+![](http://p3.pstatp.com/large/ac70007fa3b7e039b2d)
 
 其实, 昨天我还禁用了两个启动项, 都是fstab中的, 用于挂载(mount)服务器上的nfs磁盘, 每一个竟然用了1分钟左右 (用systemd-analyze blame看到的):
 
 sudo vim /etc/fstab
 
-!(http://p3.pstatp.com/large/b0c0004fc659a691d43)
+![](http://p3.pstatp.com/large/b0c0004fc659a691d43)
 
 就是上图中
 
@@ -68,13 +68,13 @@ sudo vim /etc/fstab
 
 auto是automatic的缩写, 表示"自动"。而noauto就是not/no automatic的缩写, 表示"不自动"。
 
-!(http://p2.pstatp.com/large/b0e0004f3e8437b221a)
+![](http://p2.pstatp.com/large/b0e0004f3e8437b221a)
 
 用man fstab可以看到:
 
-!(http://p1.pstatp.com/large/ac8000740b1ca4e548a)
+![](http://p1.pstatp.com/large/ac8000740b1ca4e548a)
 
-!(http://p3.pstatp.com/large/b0e0004f64645ae91b5)
+![](http://p3.pstatp.com/large/b0e0004f64645ae91b5)
 
 可以看到, 默认情况下(default中)是auto的, 也就是说默认情况下会在开机时自动挂载那两个nfs磁盘。
 
