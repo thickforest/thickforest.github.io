@@ -1,0 +1,6 @@
+permalink: /:year/:month/:title/
+url: https://thickforest.github.io
+author: Forest
+highlighter: rouge
+timezone: Asia/Shanghai
+paginate: 24
