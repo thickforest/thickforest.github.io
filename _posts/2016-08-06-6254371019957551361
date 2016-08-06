@@ -1,0 +1,31 @@
+
+---
+layout: post
+title: Linset——攻防兼备的Bash脚本
+categories:
+- 今日头条
+tags:
+---
+				![](http://p1.pstatp.com/large/25400029a6fbb3637c2)
+
+Linset是一款攻防结合的Bash脚本，其中囊括有实现恶意行为的全部必要组件（包括多语种网络页面、DHCP以及配备重新定向伪造AP的DNS服务器等等），因此其已经造成了大量负面影响并被证明该脚本诞生于西班牙。不过除此之外，Linset也是一款非常酷炫的防御工具。
+
+另外，其名称也很有来头，全称为——Linset Is Not a Social Engineering Tool（即Linset并非社交工程工具）。目前已经出现了Infernal Twin（一款自动Wifi破解工具）与EvilAp Defender（一款保护性工具，用于检测邪恶双生攻击活动）等多种强大的双生型工具。
+
+功能特性
+
+· 扫描网络。· 选定网络。· 捕捉握手（也可在不存在握手过程的场景中起效）。· 从多套定制型Web接口中选定适合自己的选项。· 启动FakeAP以模仿原始对象。· 立足于FakeAP创建一套DHCP服务器。· 创建一套DNS服务器以将全部请求重新定向至该主机。· 该Web服务器及其全部选定接口一并启动。· 启动相关机制以检查待输入密码的有效性。· 对全部网络用户进行验证失败化处理，引导其接入FakeAP并输入密码内容。· 该攻击将在输入正确密码后停止。
+
+运行要求
+
+由于其属于一套BASH脚本，因此Linset的成功运行需要一系列外部应用加以配合：
+
+– Aircrack-ng– Aireplay-ng– Airmon-ng– Airodump-ng– Awk– Curl– Dhcpd– Hostapd– Iwconfig– Lighttpd– Macchanger– Mdk3– Php5-cgi– Pyrit– Python– Unzip– Xterm
+
+任何标准Linux安装版本都将包含一定数量的Kali等方案，这意味着用户需要完成对DHCPd、HostAPd、LigHTTPd以及PHP5-cgi的安装。
+
+大家可以通过在E安全微信公众号回复“Linset”获取该工具。
+
+E安全/文 转载请注明E安全
+
+新朋友请关注「E安全」微信搜公众号EAQapp

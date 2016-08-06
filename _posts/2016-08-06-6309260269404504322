@@ -1,0 +1,55 @@
+
+---
+layout: post
+title: 中国黑客工具“菜刀-Cknife”可能威胁全球网络服务器安全
+categories:
+- 今日头条
+tags:
+---
+				E安全7月20日讯，据国外媒体softpedia报道，中国MS509Team的两大安全研究人员Chora和MelodyZX开发了新型Webshell管理工具“Cknife”，在GitHub开放源代码供所有人使用，当然黑客亦不例外。
+
+![](http://p1.pstatp.com/large/ac7000186800c59a0b3)
+
+2015年12月，跨平台版中国菜刀—Cknife发布，它是由Java语言编写的，包括服务器端组件，可以管理链接至Java、 PHP、ASP和ASP.NET服务器。
+
+![](http://p3.pstatp.com/large/aa200078f2b33170490)
+
+Cknife是Chopper的现代克隆版
+
+声称能预测未来的创业公司Recorded Future的一份调查研究指出，Chopper是2013年发布的一款非常有效但却过时（代码级别）的Webshell管理工具，深受中国各种颜色帽、犯罪组织以及高级持续性威胁者追捧。Cknife是Chopper的“升级版”。
+
+![](http://p3.pstatp.com/large/ac8000185bb9caf0bbd)
+
+Cknife与Chopper有一些共同之处，像图标以及处理HTTP请求中的一些怪异模式。但这两种工具却也截然不同，Cknife用Java编写，而Chopper则用C++编写而成。
+
+![](http://p1.pstatp.com/large/aa200078f2cbfce3933)
+
+此外，Cknife通过HTTP打开Webshell GUI与被感染服务器之间的连接，而Chopper使用HTTPS。Recorded Future表示，Cknife开发人员许诺在今后几个月会支持HTTPS.
+
+Cknife是网络服务器的RAT
+
+Cknife允许用户一次连接多个服务器，同时连接网络服务器与数据库并运行命令行访问的远程shell。
+
+![](http://p3.pstatp.com/large/ac7000186817374a239)
+
+通过判断大量功能以及甚至支持多种皮肤的GUI，Recorded Future更愿意将Cknife称之为“网络服务器的RAT”，而不是传统的Webshell。
+
+![](http://p3.pstatp.com/large/ac8000185ba01cae8ce)
+
+虽然Cknife两名开发人员有作为安全研究人员的成功职业生涯，但当他们决定开放对网络罪犯更有利的开源工具时，他们跨越了白帽与黑帽黑客之间的鸿沟。
+
+![](http://p3.pstatp.com/large/ac700018682dfde4e6f)
+
+Recorded Future警告称，“Cknife是中国攻击者过去半年以来一直在讨论（可能在使用）的可置信威胁。考虑到围绕网络服务器的大范围攻击面、Chopper和Cknife各自的应用程序与架构以及Chopper的成功先例，不久的将来，Cknife应该应认真解决的合法威胁。”
+
+详细更多分析资料请参考：https://www.recordedfuture.com/web-shell-analysis-part-2/
+
+E句话：菜刀可以切肉，“一句话”也可以伤人
+
+E安全微信公众号:EAQapp
+
+全球网络安全资讯新传媒
+
+专注提供最新、最全、最快的网络安全资讯！
+
+E安全客服&投稿邮箱：eapp@easyaq.com

@@ -1,0 +1,35 @@
+
+---
+layout: post
+title: ZeroNet：使用 Bitcoin 加密和 BitTorrent 网络的去中心化网站
+categories:
+- 今日头条
+tags:
+---
+				ZeroNet 是使用 Python 开发的，使用 Bitcoin 加密和 BitTorrent网络的去中心化网站。
+
+ZeroNet 的优势：
+
+开放，自由，非集中化的网络和社区
+
+不会有单点故障
+
+无需托管成本
+
+永不停机
+
+速度快，在线访问
+
+![](http://p3.pstatp.com/large/82800094b66f8506d72)
+
+特性：
+
+实时更新网站Namecoin .bit 域名支持易安装：unpack & run一键 Clone无需密码，基于 BIP32认证内置 SQL server，带有 P2P 数据同步匿名：完全支持 Tor 网络，使用 .onion 隐藏服务代替 IPv4 地址TLS 加密连接自动开放 uPnP 端口支持多用户插件 (openproxy)支持任意的浏览器/操作系统
+
+下载：
+
+ZeroNet 遵循 GPLv2 开源授权协议，代码托管在 GitHub：https://github.com/HelloZeroNet/ZeroNet。
+
+微信订阅号：开源派 （opensourcepie）
+
+![](http://p2.pstatp.com/large/7ce0000a29b9ca0e25c)

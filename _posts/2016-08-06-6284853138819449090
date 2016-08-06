@@ -1,0 +1,15 @@
+
+---
+layout: post
+title: Facebook线上比赛平台FBCTF开源
+categories:
+- 今日头条
+tags:
+---
+				FBCTF是一个由 facebook用PHP语言开发的在线安全比赛平台, 学生和开发者可通过此平台了解网络安全和进行安全编码的实践。FBCTF平台开源内容包括CTF游戏地图，可用平台组织自己的线上网络安全比赛。开放注册团队以及得分榜。 现有平台中的挑战包括逆向工程、取证技术、web应用程序安全、密码学和二进制攻击。
+
+![](http://p3.pstatp.com/large/6a900074371ddb4ed8c)
+
+Ubuntu环境中安装：
+
+sudo apt-get install git git clone https://github.com/facebook/fbctfcd fbctf ./extra/provision.sh prod $PWD

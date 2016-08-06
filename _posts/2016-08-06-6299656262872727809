@@ -1,0 +1,15 @@
+
+---
+layout: post
+title: Linux/macOS/Chrome OS小心：新漏洞让恶意代码肆虐
+categories:
+- 今日头条
+tags:
+---
+				IT之家讯 近日，思科安全研究人员在Linux、BSD系统、苹果macOS和谷歌Chrome OS常用的开源库Libarchive中发现三个内存崩溃错误，这会导致任意代码执行。该漏洞一旦被攻击者利用，则会成为恶意代码肆虐的“天堂”。
+
+![](http://p1.pstatp.com/large/95300034eb08834b89a)
+
+据悉，攻击者可以通过特制文件来利用漏洞，应用开发者也可以在自己的产品中整合Libarchive代码，从而为攻击者增加了可攻击的目标。目前已经无法得知有多少应用和固件已经在使用Libarchive。
+
+修复该漏洞的补丁有三个，然而相关系统和应用何时能够进行修复就很难得知了。

@@ -1,0 +1,107 @@
+
+---
+layout: post
+title: RDP连接降级攻击以及规避方法解析
+categories:
+- 今日头条
+tags:
+---
+				如果终端服务器（Terminal Servers）配置不正确，那么RDP（Remote Desktop Protocal，远程桌面协议）连接就可能会面临降级攻击的危险。在这篇文章中，我们会使用一个名为rdp-downgrade.py的POC工具来演示降级攻击。
+
+RDP安全层
+
+在讨论降级攻击之前，我们需要明白，所谓的降级究竟从什么级别降到什么级别。
+
+在RDP协议中有下面三个可用的安全层。都可以在Terminal Server终端服务器上进行配置。
+
+Classic RDP Protocol – 在tscc.msc配置工具中，它又叫“RDP Security Layer”，协议说明（见PDF的40页）则将之称为PROTOCOL_RDP。SSL – GUI界面中就被称作“SSL”或“SSL（TLS 1.0）”，协议说明里面则称之为PROTOCOL_SSL。CredSSP – 当选中“Network Layer Authentication”（网络层认证）选项时，也就有了响应的功能。它也使用了SSL，在协议规格中描述为PROTOCOL_HYBRID。
+
+这里面第一个选项是不安全的。如果协商后使用这个协议，连接就比较容易遭受中间人攻击。实施这一攻击的人可以看到客户端和服务器之间传递的所有输入信息和数据。我们的目标就是要降级到这个协议之上。
+
+剩下的两个选项都使用了SSL封装，就安全多了。我们就是从这两个协议降级。
+
+怎么才能知道连接使用了哪个安全层
+
+可以利用终端服务客户端mstsc.exe的警告信息来识别使用了什么协议。
+
+Classic RDP
+
+提示不能认证服务器的警告信息，在上面还提到了中间人攻击。
+
+![](http://p1.pstatp.com/large/9e1000841c3203055ba)
+
+Classic RDP连接的警告
+
+SSL
+
+如果你没有配置主机信任RDP服务器的SSL证书，你会看到下面的证书警告:
+
+![](http://p3.pstatp.com/large/9aa0009c3adec94a6cd)
+
+（Non-CredSSP）SSL连接的警告
+
+CredSSP（NLA + SSL）
+
+你会收到一个输入用户名和口令的弹出窗口。而Classic RDP和SSL都通过完整的Windows桌面来输入密码。
+
+![](http://p3.pstatp.com/large/9e00008459dc6397da5)
+
+NLA连接的对话框
+
+有漏洞的配置
+
+如果把Terminal Servers配置成“Negotiate”协商安全层，就有降级攻击的可行性。下面就是Windows 2003服务器的配置，在更新版本的Windows上也有。
+
+![](http://p1.pstatp.com/large/9e00008459c77f867f7)
+
+降级攻击
+
+我们要连接至一台Windows 2003 RDP服务器，这台服务器配置为协商安全层（Negotiate）。我们连接所用的系统自然就是支持Classic RDP、SSL和NLA的Windows系统。这台服务器则只支持Classic RDP和SSL。可以预见，两者一般情况下应该会协商出双方都支持的最安全的协议：SSL。
+
+在攻击的时候，我们对流量进行篡改，让服务器认为客户端只支持Classic RDP。至于流量拦截，我们可以用ARP欺骗或者DNS欺骗或者其它方法实现。
+
+在连上TCP 3389端口之后，客户端（mstsc）会发送类似于下面的数据（十六进制显示）：
+
+03 00 00 13 0e e0 00 00 00 00 00 01 00 08 00 *03* 00 00 00
+
+其中的03就表示客户端支持的协议，这个位置的值分别对应下面这些含义：
+
+00 – 只支持Classic RDP01 – 支持Classic RDP和SSL03 – 除上面两个之外，还支持CredSSP
+
+这在协议规范的37页有描述。
+
+我们的POC就是简单的把03换成00，让客户端和服务器最终协商出Classic RDP，而不是SSL。
+
+用我们的工具在192.168.190.170上监听TCP 3389端口。并让它把流量转发到192.168.2.96。
+
+$ python rdp-downgrade.py 192.168.2.96[Proxy] Listening for connections on 0.0.0.0:3389
+
+这个例子中，我们没有做真实的ARP欺骗攻击，直接连向了中间人。
+
+![](http://p3.pstatp.com/large/9de0007d2f812b41185)
+
+输入了攻击者的IP地址
+
+在我们的POC工具里，看到了来自于RDP客户端（192.168.190.1）的连接，并且代理向目标服务器发起了连接。
+
+[Proxy] Incoming connection from 192.168.190.1:58715[Proxy] New outgoing request to 192.168.2.96:3389[Proxy] Connected
+
+接下来，我们看到客户端发送了19个字节，注意靠近数据末尾的03，POC工具将其识别了出来，并提示信息告诉我们，已经将03改成00。
+
+[From 192.168.190.1] Received 19 bytes0000 03 00 00 13 0E E0 00 00 00 00 00 01 00 08 00 03 ................0010 00 00 00 ...[From 192.168.190.1] Modified data to downgrade connection
+
+接着，我们不做任何更改就可以自由地查看流量了：
+
+[From 192.168.2.96] Received 19 bytes0000 03 00 00 13 0E D0 00 00 12 34 00 02 00 08 00 00 .........4......0010 00 00 00 ......snip...
+
+mstsc会显示Classic RDP连接的警告框，这就表明降级攻击成功了。这个警告对话框，我们在前面提到Classic RDP的时候就已经见过了。
+
+![](http://p3.pstatp.com/large/9e1000841c4335345b6)
+
+Classic RDP连接的警告信息
+
+结论
+
+通过上面的攻击过程，我们当然建议不要将终端服务器的安全层配置成“Negotiate”协商，而是配置成使用SSL，这理论上就能有效阻止上面这样的降级攻击了。
+
+* 参考来源：Portcullis，felix编译，转载请注明来自FreeBuf黑客与极客（FreeBuf.COM）

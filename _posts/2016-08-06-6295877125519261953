@@ -1,0 +1,246 @@
+
+---
+layout: post
+title: Fuzzer工具资源大汇总
+categories:
+- 今日头条
+tags:
+---
+				Fuzzer（漏洞检查工具）可以发送数据到组件，可以完成数以万计的检查任务，来帮助我们发现软件中不期望有的漏洞。
+
+![](http://p3.pstatp.com/large/7f900006417a2880c5f)
+
+今天将为大家介绍四种Fuzzer资源：
+
+1.开源Fuzzer
+
+afl-fuzz:
+
+http://lcamtuf.coredump.cx/afl/
+
+American fuzzy lop is a security-oriented fuzzer that employs a novel type of compile-time instrumentation and genetic algorithms to automatically discover clean, interesting test cases that trigger new internal states in the targeted binary. This substantially improves the functional coverage for the fuzzed code. The compact synthesized corpora produced by the tool are also useful for seeding other, more labor- or resource-intensive testing regimes down the road.
+
+Compared to other instrumented fuzzers, afl-fuzz is designed to be practical: it has modest performance overhead, uses a variety of highly effective fuzzing strategies and effort minimization tricks, requires essentially no configuration, and seamlessly handles complex, real-world use cases - say, common image parsing or file compression libraries.
+
+Nightmare:
+
+https://github.com/joxeankoret/nightmare
+
+带有网络管理的分布式fuzzing测试套件
+
+Randy:
+
+http://ptrace-security.com/blog/randy-random-based-fuzzer-in-python/
+
+Python语言编写的一种随机Fuzzer
+
+Dizzy:
+
+https://github.com/ernw/dizzy
+
+基于Python语言编写的 fuzzing框架
+
+可以发送到L2甚至更高层（TCP/UDP/SCTP）具备与奇数长包域共同运行的能力（无需匹配字节边框，甚至可以表现并模糊单个标记或7bit长域。）非常简单的协议定义语法通过使用响应中接收的目标数据执行多包state-full fuzzing。
+
+Address Sanitizer:
+
+https://github.com/Google/sanitizers
+
+AddressSanitizer, ThreadSanitizer, MemorySanitizer
+
+Diffy:
+
+https://github.com/twitter/diffy
+
+通过Diffy找到服务内的潜在漏洞
+
+Wfuzz:
+
+https://github.com/xmendez/wfuzz
+
+网络应用程序bruteforcer
+
+HTTP://www.edge-security.com/wfuzz.php
+
+Go-fuzz:
+
+https://github.com/Google/gofuzz
+
+Fuzz 测试
+
+Sulley:
+
+https://github.com/OpenRCE/sulley
+
+Sulley是一个积极发展的包含多个可扩展组件的fuzzing引擎以及模糊测试框架。Sulley (恕原作者直言)超越了大多数先前发布的fuzzing技术、商业和公共域。这个框架的目标是简化数据表示法和数据传输和instrumentation。用Python语言编写
+
+计算机应急响应小组（CERT）基本模糊测试框架（BFF）—linux, OSX
+
+https://github.com/CERTCC-Vulnerability-Analysis/certfuzz
+
+http://www.cert.org/vulnerability-analysis/tools/bff.cfm
+
+CERT发布的这款BFF是发现linux以及mac os x平台运行的应用程序漏洞。BFF在消耗文件输入的软件商运行突变fuzzing。（突变fuzzing是获取格式良好的输入数据并通过多种方式将其损坏的行为，寻求导致崩溃的用例。）BFF以独特的方式收集导致软件崩溃的测试用例，并调试与崩溃相关的信息。BFF的目标是将软件供应商和安全研究人员的工作强度最小化，以便通过fuzzing有效发现并分析已发现的安全漏洞。
+
+CERT故障观察引擎（FOE）—windows
+
+http://www.cert.org/vulnerability-analysis/tools/foe.cfmhttps://github.com/CERTCC-Vulnerability-Analysis/certfuzz
+
+CERT发布的FOE是一款软件测试工具，用来发现在windows平台运行的应用程序的漏洞。FOE在消耗文件输入的软件上执行突变fuzzing。（突变fuzzing是获取格式良好的输入数据并通过多种方式将其损坏的行为，寻求导致崩溃的用例。）FOE以独特的方式自动收集导致软件崩溃的测试用例，并调试与崩溃有关的信息。FOE的目标是将软件供应商和安全研究人员的工作量，以通过fuzzing有效发现并分析发现的安全漏洞。
+
+Dranzer 用于ActiveX 控件
+
+https://github.com/CERTCC-Vulnerability-Analysis/dranzer
+
+Dranzer是一种工具，使用户能够检查有效的模糊测试ActiveX控件技术。
+
+Radamsa 一款通用fuzzer
+
+https://github.com/aoh/radamsa
+
+Radamsa是稳健性测试的测试用例生成器，可以用来测试程序承受有漏洞的潜在恶意输入程度。Radamsa编制不同于通常有效的样本文件的文件。然后，像这样或通过一些脚本将修改后的文件提供予目标程序。与其它fuzzer相比，Radamsa的主要卖点是：它可以非常简单地在大多数机器行运行，易于从命令行获取脚本，已被用于目前可能用到的程序中的大量安全问题。
+
+.zzuf应用程序fuzzer
+
+https://github.com/samhocevar/zzuf
+
+Zzuf是一个透明的应用输入fuzzer，它拦截文件操作并更改程序输入中的随机位。Zzuf具有决定性，使得它易于复制漏洞。如何使用zzuf的指南和例子，请查看<http://caca.zoy.org/wiki/zzuf>。
+
+Backfuzz
+
+https://github.com/localh0t/backfuzz
+
+Backfuzz是为不同协议（FTP、 HTTP、 IMAP等）用phthon语言编写的fuzzing工具。大意是，这个脚本具有多个预定义函数，因此想写插件（用于另一协议）的人可以通过几行代码搞定。
+
+KEMUfuzzer
+
+https://github.com/jrmuizel/kemufuzzer
+
+KEmuFuzzer是测试基于仿真测试或直接本地执行的工具。目前KEmuFuzzer支持BHOCS、QEMU、VMware和 virtualbox。
+
+Pathgrind
+
+https://github.com/codelion/pathgrind
+
+Pathgrind使用基于路径的动态分析模糊linux/unix二进制。它用phthon语言编写并基于valgrind。
+
+.Wadi-fuzzer
+
+https://www.sensepost.com/blog/2015/wadi-fuzzer/ https://gitlab.sensepost.com/saif/DOM-Fuzzer
+
+Wadi是一个网页浏览器基于语法的fuzzer。语法被用来描述浏览器应该如何处理网页内容，Wadi相反，使用语法破坏浏览器Wadi是一个fuzzing模块，通过NodeFuzz fuzzing Harness运用并利用在Linux和Mac OSX上的AddressSanitizer(ASan) instrumentation。万维网联盟(W3C)是一个创建开放标准确保网络长期发展的“国际共同体”。W3C允许我们搜索语法将其用于测试用例。
+
+LibFuzzer, Clang-format-fuzzer, clang-fuzzer
+
+http://llvm.org/docs/LibFuzzer.htmlhttp://llvm.org/viewvc/llvm-project/cfe/trunk/tools/clang-format/fuzzer/ClangFormatFuzzer.cpp?view=markuphttp://llvm.org/viewvc/llvm-project/cfe/trunk/tools/clang-fuzzer/ClangFuzzer.cpp?view=markup
+
+我们执行了LibFuzzer之上的两个fuzzer：clang-format-fuzzer和clang-fuzzer。Clang-format主要是一个语法分析程序，因此向它提供随机字节给格式命令完美运行并发现超过20个漏洞。但是，Clang不只是一个语法分析程序，给它随机字节勉强触及表面，因此除了用随机字节测试，我们还模糊token-aware模式下的Clang。两种模式均发现漏洞。其中一些漏洞之前被AFL检测到，一些却没被发现。用AddressSanitizer运行这个fuzzer，如果不用它，很难发现一些漏洞。
+
+Perf-fuzzer
+
+http://www.eece.maine.edu/~vweaver/projects/perf_events/validation/
+
+https://github.com/deater/perf_event_tests
+
+http://web.eece.maine.edu/~vweaver/projects/perf_events/fuzzer/
+
+Linux perf_event子系统的测试套件
+
+HTTP/2 Fuzzer
+
+https://github.com/c0nrad/http2fuzz
+
+内置于Golang的HTTP2 fuzzer
+
+QuickFuzz
+
+http://quickfuzz.org/
+
+QuickFuzz是QuickCheck、模板Haskell和Hackage特定库支持的语法fuzzer，生成许多复杂的文件格式，比如Jpeg、 Png、Svg、 Xml、 Zip、Tar等等。QuickFuzz是一个开源（GPL3）程序，它可以使用其他漏洞检测工具，例如zzuf、radamsa、 honggfuzz和valgrind。
+
+SymFuzz
+
+https://github.com/maurer/symfuzz
+
+http://ieeexplore.IEEE.org/xpls/abs_all.jsp?arnumber=7163057
+
+设计的黑盒fuzzing算法最大限度的发现漏洞。最直观的是利用白盒符号分析对给定程序种子对执行追踪，以检测输入的BIT位置相关性，然后使用这个依存关系计算这个程序种子对的概率最佳突变率。结果乐观：在8个使用同样fuzzing时间的应用程序上发现的漏洞比前三个fuzzer平均多出38.6%。
+
+OFuzz
+
+https://github.com/sangkilc/ofuzz
+
+OFuzz是一个用OCaml编写的fuzzing平台。OFuzz目前专注于在*nix平台运行的文件处理应用程序。OFuzz的主要涉及原则在于灵活性：必须易于添加/更换fuzzing组件（崩溃会战型紧急修复增强模块、测试用例生成器，等）或算法（突变算法、调度算法）。
+
+2. Fuzzing Harnesses:
+
+Nodefuzz
+
+https://github.com/attekett/NodeFuzz
+
+用于Linux和Mac OSX。NodeFuzz是网页浏览器和类似浏览器应用程序的fuzzer harness。NodeFuzz背后有两种主要概念：第一个是创建简单快速的方式模糊不同的浏览器。第二个是具有harness，可以通过新的测试用例生成器和客户端测试设备轻易扩展，不需修改核心代码。
+
+Grinder
+
+https://github.com/stephenfewer/grinder
+
+用于 windows.Grinder是自动化网页浏览器和管理大量崩溃的系统
+
+Kitty
+
+https://github.com/Cisco-sas/kitty
+
+Kitty是用python语言编写的开源模块化和可扩展fuzzing框架，灵感来源于OpenRCE的Sulley和Michael Eddington的（现在Deja vu Security）的Peach Fuzzer。
+
+Peach
+
+http://community.peachfuzzer.com/
+
+https://github.com/MozillaSecurity/peach
+
+Peach是能执行基于生成和突变fuzzing的SmartFuzzer。
+
+![](http://p3.pstatp.com/large/7fa0000648dca0e6bfc)
+
+3.免费但非开源fuzzer
+
+SDL MiniFuzz File Fuzzer
+
+https://www.Microsoft.com/en-us/download/details.aspx?id=21769
+
+用于Windows。SDL MiniFuzz File Fuzzer是一个基本的文件fuzzing工具，旨在让不熟悉文件fuzzing工具或从未将其用于目前的软件开发过程的非安全开发者易于选择fuzz测试。
+
+Rfuzz
+
+http://rfuzz.rubyforge.org/index.html
+
+RFuzz是一个Ruby库，容易从外部通过快速的HttpClient测试网络应用程序，恶意的垂直注入RandomGenerator允许一般程序员使用高级fuzzing技术，一天只需一美分。
+
+Regex Fuzzer
+
+http://go.microsoft.com/?linkid=9751929
+
+DL Regex Fuzzer是一种验证工具，帮助测试潜在拒绝服务漏洞的正规表达式。正规表达模式包含在指数时间执行的特定子句（比如，分组子句包含自己被重复的重复），攻击者可以利用漏洞导致DoS条件。SDL Regex Fuzzer与SDL过程模板和-Agile+SDL过程模板融合，帮助用户追踪并消除项目中任何检测的正则表达式漏洞。
+
+![](http://p3.pstatp.com/large/7fa0000648dca0e6bfc)
+
+4.博客资源
+
+Start-to-finishfuzzing of Yawml with AFL - a complete fuzzjob by foxglovesecurity‍http://foxglovesecurity.com/2016/03/15/fuzzing-workflows-a-fuzz-job-from-start-to-finish/
+
+Fuzz smarter not harder - fuzzing with afl, a primer from 
+bsidessf2016‍https://www.peerlyst.com/posts/bsidessf-2016-recap-of-fuzz-smarter-not-harder-an-afl-primer-claus-cramon
+
+原文地址：https://www.peerlyst.com/posts/resource-open-source-fuzzers-list
+
+Mickey Shkatov/文 转载请注明E安全
+
+E安全——全球网络安全新传媒
+
+E安全微信公众号： EAQapp
+
+E安全新浪微博：weibo.com/EAQapp
+
+E安全PC站点：www.easyaq.com
+
+E安全客服&投稿邮箱：eapp@easyaq.com

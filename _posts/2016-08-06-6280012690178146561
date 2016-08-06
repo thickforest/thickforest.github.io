@@ -1,0 +1,29 @@
+
+---
+layout: post
+title: 利用各种算法对WiFi破解的原理
+categories:
+- 今日头条
+tags:
+---
+				![](http://p1.pstatp.com/large/5b100014707876b335d)
+
+![](http://p3.pstatp.com/large/5b100014763e7ad6339)
+
+ 这是一种不可逆运算，你不能通过运算结果来求解出原来的未知数是多少，有时我们还需要不同的未知数通过该算法计算后得到的结果不能相同，即你不太可能找到两个不同的值通过哈希得到同一个结果。哈希是一类算法的统称，通常哈希算法都是公开的，比如MD5，SHA-1等等。;  我们平时说的WPA密码其实叫PSK（pre-shared key），长度一般是8-63字节，它加上SSID通过一定的算法可以得到PMK（pairwise master key）。PMK=SHA-1(ssid,psk) ，PMK的长度是定长的，都是64字节。由于计算PMK的过程开销比较大，是我们破解花费时间长的关键，所以采用以空间换时间的原则把PMK事先生成好，这个事先生成好的表就是常说的HASH表（生成PMK的算法是一种哈希），这个工作就是用airlib-ng这个工具来完成的，我们的快速破解就是这么来的。
+
+ 认证的时候会生成一个PTK（pairwise temporary），这是一组密钥，具体细节不详细说了，它的生成方法也是采用的哈希，参数是连接的客户端MAC地址、AP的BSSID、A-NONCE、S-NONCE、PMK，其中A-NONCE和S-NONCE是两个随机数，确保每次连接都会生成不同的PTK。PTK的计算消耗很小。PTK加上报文数据采用一定的算法（AES或TKIP），得到密文，同时会得到一个签名，叫做MIC（message integrality check），tkip之所以被破解和这个mic有很大关系。四次握手包中含有以上的哪些东西呢？客户端的MAC地址，AP的BSSID，A-NONCE，S-NONE，MIC，最关键的PMK和PTK是不包含在握手包里的！
+
+ 认证的原理是在获得以上的所有参数后，客户端算出一个MIC，把原文连同MIC一起发给AP，AP采用相同的参数与算法计算出MIC，并与客户端发过来的比较，如果一致，则认证通过，否则失败。目前的破解方法是我们获得握手包后，用我们字典中的PSK+ssid先生成PMK（如果有HASH表则略过），然后结合握手包中的（客户端MAC，AP的BSSID，A-NONCE，S-NONCE）计算PTK，再加上原始的报文数据算出MIC并与AP发送的MIC比较，如果一致，那么该PSK就是密钥。
+
+ 目前最耗时的就是算PMK，可谓破解的瓶颈。即使搞定了运算量的问题，海量的密钥存储也是个问题（PMK都是64字节长度）！ 最近出来的tkiptun-ng只是可以解开使用tkip加密了的数据包，并不是说能够快速算出PMK或PSK。如果感兴趣，可以到书店看看讲哈希的书，说不定你把这些HASH算法都破解出来了。
+
+![](http://p3.pstatp.com/large/52c00099ad565ad5eff)
+
+network={ ssid="TP-LINK"
+
+ #psk="12345678"
+
+psk=1eecc652f354863e9f985a96d48545c4994e0d21b04955432b60c2600c0743da 其实就是PMK了，一般在电脑上运行查看无线密码的软件就是得到这个，把后面的直接输入到无线客户端中就可以连上该ssid，相当于输入了12345678，生成PMK的过程是不可逆的，即无法通过这段代码来逆推得到12345678。可以看到同样是psk是12345678，如果ssid名字改变，那么pmk就会发生改变，这就是为什么用airolib-ng建表是只能按ssid生成。
+
+（转载需注明出处，作者：WiFi骇客 微信：WiFiself）

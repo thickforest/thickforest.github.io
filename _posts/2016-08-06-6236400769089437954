@@ -1,0 +1,73 @@
+
+---
+layout: post
+title: 一个Web自动化测试的简单方法
+categories:
+- 今日头条
+tags:
+---
+				介绍
+
+在本教程中，我们将展示如何通过Selenium IDE测试Web应用程序。 Selenium IDE是Firefox插件，它可以记录用户在浏览器中的操作，然后自动运行。我们首先安装Selenium IDE，然后讲解最实用的controlls和panels。记录简单的用例，并使用Selenium IDE自动运行，进度检查，导出这个测试用例的编程语言。
+
+Selenium IDE具有特殊命令行。Selenium模拟用户活动。你可以模拟任何用户活动：插入文本，提交表单，应用程序导航，点击链接，点击复选框，选择在组合框中的选项。Selenium IDE最主要的优点是，你不需要有设计程序语言的经验。您只需要安装Selenium插件，记录使用活动，并运行测试。这非常人性化。Selenium IDE用来测试原生浏览器的API，你可以使用所有的specters命令，Firefox是支持的。那我们就开始安装Selenium IDE吧。
+
+安装
+
+首先，我们进入下载页面，选择Selenium IDE的最新版本: http://docs.seleniumhq.org/download/
+
+
+
+下载完成后，我们按照Firefox浏览器的安装提示顺序进行安装。安装完成后，我们可以在Selenium IDE的右上角看见Selenium IDE按钮。
+
+
+
+点击该按钮打开Selenium IDE，如下所示。
+
+
+
+Selenium IDE看起来如下所示。
+
+
+
+以下是主要有用的控制描述：
+
+Record user activities（记录用户活动）这是一个切换按钮。当它开启时，可以记录主浏览器窗口中的用户活动。Run single test（运行单个测试）运行一个选定的测试。Run multiple tests（运行多个测试）运行在Selenium IDE中打开的所有测试。Base url（基本URL）可以在此输入框中定义Web应用程序的URL。当我们在浏览器中进入这个网址，会记录所有活动。Test case panel（测试用例面板）该面板中包含Selenium IDE记录的所有用户活动。
+
+接下来，我们记录第一个测试用例。
+
+测试
+
+我们要测试这个网站的搜索功能：http://examples.javacodegeeks.com。首先，我们要开启record按钮，输入Base url，然后跳转到主浏览器窗口。我们去这个网站，找到搜索输入，输入必要的文字，提交表单。之后，我们得到了搜索结果，接下来需要验证这个结果。我们需要选择所需的元素并打开鼠标右键菜单，如下显示。
+
+
+
+该菜单包含了附加的Selenium IDE选项：列出了可用的命令行，断言的命令行。如果我们要检查结果，需要选择assert命令。现在我们已经准备好测试案例，让我们在Selenium IDE里看看代码什么样。
+
+
+
+我们怎样看测试用例面板是否已经满了呢？此表包含了仿真用户活动。有时候，我们需要手动添加命令。
+
+你需要单机表中空白的地方，在controls下方输入。让我们来运行测试，看看结果。我们点击运行按钮，等待测试完成。
+
+
+
+我们需要保存测试用例，之后会继续用到它。
+
+
+
+有时候，我们需要周期性地运行测试。Selenium IDE支持此功能。进入主菜单 - 选项 - 安排测试定期运行，如下图所示。
+
+
+
+你可以在打开的窗口中进行配置。例如，我们选择每隔一小时运行一次测试用例。然后，你需要打开测试日程。
+
+
+
+Selenium IDE可以将您的测试用例导出为您偏爱的编程语言。
+
+
+
+本文翻译自javacodegeeks
+
+本站文章除注明转载外，均为本站原创或翻译

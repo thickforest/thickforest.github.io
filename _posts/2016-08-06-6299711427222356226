@@ -1,0 +1,109 @@
+
+---
+layout: post
+title: Docker 深感 Mesos、Kubernetes 威胁，Engine 中内置编排
+categories:
+- 今日头条
+tags:
+---
+				![](http://p8.pstatp.com/large/95800012e3474feb33c)
+
+编者按：2016年的 DockerCon 已经圆满落下帷幕，本次大会最重要的发布当属 Docker 将编排工具 Swarm 内置到了 Docker Engine 中。容器编排是多主机部署 Docker 应用时必须要解决的问题，会伴随应用的整个生命周期。
+
+如果一个应用如果由多个容器组成，那么编排工具是必不可少的，而在实际的生产环境中，谁家的应用是跑一个容器就够的呢？Docker 意识到很多用户都已经非常依赖于第三方的编排工具，比如 Mesos，Kubernetes。
+
+Google 不愧是每天要处理20亿容器的老司机，在 Docker 刚火起来不久，2013年夏天就开始了 Kubernetes 项目；而2007年诞生的 Mesos，虽然最初的设计是为了支持分布式高性能的计算负载，但在2014年8月的0.20.0版本中就加入了对 Docker 的支持；Docker 自己反而是落后很多，在2014年12月的 DockerCon 上才正式发布了 Docker Swarm，目前虽然发展的很快，但还是稍显落后。但 Swarm 毕竟是原生qín shēng的，于是在今年的 DockerCon 上，Swarm 被内置到了 Docker Engine。
+
+有人说这也是 Docker 正式向 Kubernetes 开战的标志，但 business is business，我们还是在 DockerCon 上看到了 Kubernetes 的展台。
+
+![](http://p3.pstatp.com/large/9560001368161de5c1a)
+
+（图片来自 Twitter，中间那位白衣服的帅哥就是 Kubernetes 项目的创始人 Brendan Burns，小编还有幸采访过他）
+
+当然本文不会只聊这些八卦而已，而是要带你了解什么是容器编排？为啥 Docker 要在这么多第三方工具中，第一个拿下它？以及这三个最常用的编排工具的工作原理对比。
+
+以下为译文：
+
+容器生命周期管理工具
+
+在 Docker 平台及其周边的生态中包括很多容器生命周期管理的工具，比如 Docker 的 CLI（CommandLine Interface）可以支持以下的容器行为：
+
+从 registry 中 pull 一个镜像库；运行容器；commit 容器为一个新的镜像；上传镜像到 registry；停止一个运行中的容器。
+
+尽管 CLI 满足了在一个主机上管理一个容器的需求，但要管理部署在多主机上的多容器问题，就必须要求助于编排工具了。编排工具可以管理部署在集群中的复杂、多容器的工作负载。通过抽象化主机基础设施，编排工具可以把整个集群当做单一的部署目标去看待。 
+
+基本功能
+
+一个典型的编排过程，会将应用管理的各个方面都自动化，从初始的布局，调度，以及系统部署到稳定状态的一些动作，比如更新，扩展和故障相关的健康监控功能等，都是一个现代容器编排工具的核心功能。
+
+配置声明
+
+通过配置工具，DevOps 团队能以标准的格式（比如 YAML 或 JSON 格式），声明一个应用负载及其配置。这些定义也承载了镜像库，网络（端口），存储volume和工作负载日志的关键信息。这种方式不但能保证编排工具每次对目标系统的配置，都能达到相同的效果；还能让编排工具根据应用的不同阶段（开发、测试和生产），对不同的目标环境，发送相应的配置。 
+
+规则和限制
+
+工作负载通常有特殊的规则，或者对主机的布局，性能和高可用性有一定要求。比如，将 master 容器和 slave 数据库容器部署在同一个主机上是无意义的，违背了原则；同样，将内存中的缓存和web服务器放在同一个主机上可能比较好。编排工具可以定义容器间的关系和容器的布局限制。
+
+调度
+
+调度解决的是容器在集群内的布局和启动，这个过程包括根据配置选择一个合适的主机，除了容器调度的 API 外，编排工具还会调用基础设施的 API。
+
+服务发现
+
+在一个多主机多容器的分布式部署环境中，服务发现是至关重要的。Web 服务器要动态查找数据库服务器，负载均衡器要查找和注册 web 服务器。编排工具提供的可能是一个分布式的 key-value 存储，一个轻量级的 DNS 或一些其它服务发现的机制。
+
+健康监控
+
+由于编排工具知道系统期望的配置情况，他们可以跟踪和监控系统容器和主机的健康状况。如果主机宕机的话，编排工具可以重新安置容器；同样，如果一个容器挂了，编排工具可以启动一个新的去替代。编排工具要保证系统部署总是按照开发人员或运维人员声明的状态进行。
+
+三大流行的编排系统
+
+目前来说 Docker 内置的 Swarm 和 Docker Swarm 的功能是基本相同的，只是更便捷了而已。那么 Docker Swarm，Kubernetes 和 Mesos 有什么区别呢？
+
+Docker Swarm
+
+Docker Swarm 的目标是使用和 Docker Engine 相同的 API，这并不是代表调用一个 Docker Engine 的 API 端口，而是显式地调用和多个 Docker Engine 相关的一个端口。这么做最大的好处是，现有的工具和 API 可以和在单实例模式下一样的工作。Docker 的 CLI 和 Compose 是开发者创建应用的方式，也可以和 Docker Swarm 做到完美兼容，这是其他编排器目前还做不到的。
+
+![](http://p1.pstatp.com/large/952000718160230b661)
+
+DockerSwarm 还有一些内置的调度策略，给了用户去引导容器布局的能力，以便能最大或最小化地在集群内扩散容器，还支持随机地容器布局。
+
+Docker 一直在遵循『batteries included but removable』的原则，意思是虽然目前它的后端只支持一些简单的调度，未来会通过可插拔的接口支持更多的功能，根据用户案例的扩展情况和复杂度，开发人员或运维人员可以有选择地去集成。所以，虽然做了内置，怕大家一时接受不来，swarm 模式默认还是关闭的。
+
+Docker Swarm 支持限制constraints和容器关系Affinity的定义，来决定容器在特定主机上的布局。限制定义了选择被调度节点的需求，可以根据存储类型，物理位置，环境和内核版本等条件进行筛选。容器关系定义了在主机上布局容器的需求。
+
+对于服务发现，Swarm 还使用了一个可插拔的后端架构，可以和静态文件，IP 列表，etcd，Consul 和 Zookeeper 等配合实现服务发现。 
+
+Google Kubernetes
+
+![](http://p1.pstatp.com/large/954000714152af8d094)
+
+Kubernetes 的架构是一个 master 服务器带多个 minion，命令行工具 Kubecfg 可以连接 master 的 API 端口，去管理和调度这些 minion。下面是 Kubernetes 环境中每个组件的定义：
+
+Master：运行着 Kubernetes 管理进程的服务器，包括 API 服务，复写控制器Replication controller和调度器；Minion：运行 Kubelet 服务和 Docker Engine 的主机，minion 接收来自 master 的命令；Kubelet：Kubernetes 中节点级别的管理器，运行在 minion 上；Pod：在同一个 minion 上部署的容器的集合；Replication controller：定义了需要运行的 pod 或容器的数量；Service：定义了每个容器发布的服务发现，以及通信用的外部代理；Kubecfg：和 master 对话的命令行接口，管理 Kubernetes 的部署。
+
+服务的定义，包括规则和约束，都是在 JSON 文件中描述的。为了实现服务发现，Kubernetes 提供了一个稳定的 IP 地址和DNS 名字，对应于动态的 pod 集合。当运行在 pod 内的一个容器连接到这个地址，这个连接会被运行在源机器上的本地代理kube-proxy，发送给相应的容器。
+
+Kubernetes 支持用户自定义的应用健康监控。这些监控是靠 kubelet 实现的，确保应用的正常运行。目前 Kubernetes 支持三种健康监控模式：
+
+HTTP 模式：Kubelet 会调用一个 web 端口，如果返回的代码在200-399之间，系统状态被视为是正常的；Container exec：Kubelet 会在容器内执行一个命令，如果返回『OK』，状态就是正常的；TCP socket：Kubelet 会向容器开放一个 socket，并建立一个连接，如果连接建立成功，系统状态就是正常的。
+
+Apache Mesos
+
+一个典型的 Mesos 集群包括了一个或多个服务器运行 mesos-master 服务，还有一个服务器集群运行着 mesos-slave 组件。每个 slave 被 master 注册后提供服务。Master 和 framework 交接后，会把任务派发给 slave。下面是 Mesos 的架构概览：
+
+![](http://p3.pstatp.com/large/95300071b58a92e4a80)
+
+Master daemon：Mesos-master 服务运行在 master 节点上，管理着 slave daemon；Slave daemon：Mesos-slave 服务运行在 slave 节点上，运行 framework 分配过来的任务；Framework：一个应用的定义，包括一个调度器（向 master 注册接收资源提供），以及一个或多个执行器（启动 slave 上的任务）；Offer：slave 节点的资源列表，每个 slave 节点发送 offer 到 master，master 提供 offer 给注册的应用 framework。Task：在 slave 节点上执行的作业集合，由 framework 调度；Apache ZooKeeper：协调 master 节点的软件。
+
+不同于其它工具，Mesos 通过 Apache ZooKeeper 实现 master 节点的高可用，一个高可用的部署需要至少3个 master 节点。系统中所有节点，包括 master 和 slave，会和 ZooKeeper 通信去确定哪个 mater 是当前的 master 管理员。管理员执行所有 slave 的监控监测工作，并将失败的 slave 删除。
+
+当 Mesos 和 Marathon 一起配合工作时，服务发现可以基于 HAProxy TCP/HTTP 负载均衡器实现，配合一个使用了 Marathon 的 REST API 的帮助脚本，定期地重新生成 HAProxy 的配置文件。Mesos-DNS 是最近发布的一个基于 DNS 的服务发现机制。
+
+编译自：http://thenewstack.io/containers-container-orchestration/作者： JANAKIRAM MSV
+
+推荐文章
+
+![](http://p3.pstatp.com/large/95300071b3e3461218d)
+
+将文章分享给朋友是对我们最好的赞赏！

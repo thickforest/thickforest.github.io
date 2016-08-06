@@ -1,0 +1,159 @@
+
+---
+layout: post
+title: 用shairport-sync搭建属于自己的airplay点唱机
+categories:
+- 今日头条
+tags:
+---
+				作者：指望不上 
+
+事情是这样的。由于搬家，以前的台式机和显示器都送人了，只剩下一对有源音箱，放在角落很久。当然了，还有一个和它一样苦命的ipad2也在吃土。真是扔了可惜，留着占地啊。于是某日，闲的极为蛋疼的我想让这两货能继续发挥点余热。
+
+刚开始的想法很简单。就是买了一个ipad的架子，把音箱插到ipad上，音乐播放用QQ。
+
+效果是这个样事儿的。。。
+
+![](http://p9.pstatp.com/large/34c000faf6da1deaf46)
+
+晚上的时候，旁边放个小夜灯，柔和的灯光下放着撩骚的音乐。。。太它么有情调了。
+
+但是，人对于懒的要求是无上限的。切歌、添加新歌、调节音量都要走过去，手动去操作。没能发挥出懒的极致，这怎么行。京东上搜了搜，倒是有这方面的设备：wifi的、蓝牙的，而且也不便宜。
+
+在微信里和懂音响的基友咨询了一下，基友推荐了一篇张大妈的原创帖子。
+
+零成本搭建卧室无线音乐系统（上）
+
+这篇文章我看了看，作者用的Daphile这个软件，这个软件还有配套的手机端，能满足我得要求。但是，这个软件只支持自己下载他的iso，用SD卡做个镜像启动，不能手动安装在我的小pc上。当然了，人家这种方式对于对linux一窍不通，但是音响方面的专业人士是很方便的。东西虽好，但是无法满足我装B的心。。忽然想到家里还有个技嘉的NUC，俗称MiniPC。这个货嘛，装的linux。当初的定位是用squid做透明代理，通过iptables进行端口转发，进行科学上网，当路由器用（这B装的还可以吧）
+
+基于以上种种情况，我在网上搜索了一下关于苹果airplay的解决方案，而且还真让我给找到了。Shairport Sync作者的github主页，大家从介绍中可以看到，它只支持声音的传输，无法做到视频和图片的。对于我，这已足够。
+
+其实大家按照作者主页的步骤弄是可以的，但是有一些遗漏的地方，还有很多看不懂英文的朋友，所以我尽量写一份详细的说明，方便大家搭建。
+
+操作系统的选择，Debian的衍生版都可以，比如大家熟知的Ubuntu就是，近两年比较热的Linux Mint也不错。我以Linux Mint 17.3 Rosa为例着重讲一下（为啥选Linux Mint，因为好看），当然Debian8和Ubuntu 15.10也可以的，这个东西尽量用新的版本，老版本对新硬件的支持不好（最好是桌面版）。
+
+Linux Mint 17.3 Rosa分两个版本，Cinnamon和MATE。区别就是Cinnamon是Gnome3的桌面，MATE是老版Gnome2的桌面，如果有怀旧情节的人可以选MATE，新人我建议还是Cinnamon，理由很简单（因为好看）。
+
+安装操作系统的步骤，我就不在这里赘述了，网上一大堆，挑个自己看着顺眼的教程一步步做就好了。
+
+
+
+第一步：安装软件依赖软件包：
+
+sudo apt-get install build-essential git
+
+autoconf automake libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev
+
+avahi-daemon libavahi-client-dev
+
+libssl-dev
+
+libpolarssl-dev
+
+libsoxr-dev
+
+
+
+第二步：克隆github的源代码到本地
+
+git clone 
+
+
+
+第三步：编译安装shariport
+
+cd shairport-sync
+
+autoreconf -i -f
+
+./configure --with-alsa --with-avahi --with-ssl=openssl --with-metadata --with-soxr --with-systemd --with-systemdsystemunitdir=/lib/systemd/system
+
+注：configure的参数，作者主页的写的不全，少了--with-systemdsystemunitdir=/lib/systemd/system这一行，我给补上了。否则编译会出错，其实就是没把变量带进去，导致cp失败
+
+make
+
+sudo make install
+
+getent group shairport-sync &>/dev/null || sudo groupadd -r shairport-sync >/dev/null
+
+getent passwd shairport-sync &> /dev/null || sudo useradd -r -M -g shairport-sync -s /usr/bin/nologin -G audio shairport-sync >/dev/null
+
+
+
+以上和作者主页的基本一致，需要补充的命令如下：
+
+sudo cp scripts/shairport-sync /etc/init.d/
+
+sudo update-rc.d shairport-sync defaults 90 10
+
+注：由于新版linux采用systemd取代旧的systemV，所以新版linux已经没有chkconfig命令来配置开机启动了，新版的命令就是update-rc.d。
+
+编辑配置文件：
+
+vi /etc/shairport-sync.conf
+
+general = {
+
+name = "Mike's Boombox";
+
+};
+
+alsa = {
+
+output_device = "hw:0";
+
+mixer_control_name = "PCM";
+
+};
+
+注：配置文件主要设置general和alsa这两部分就可以运行了，如果想深入研究其他参数，可以看看他配置文件里面的注释。
+
+name = "Mike's Boombox"; #这个就是你手机里要显示的设备名称，如下图所示（我用的是Shairport Sync Player）：
+
+![](http://p1.pstatp.com/large/351000f9d86afa47894)
+
+output_device = "hw:0"; #这里要配置音频输出的设备编号。
+
+这个编号怎么获得呢，要通过这个命令：
+
+aplay -l
+
+显示如下：
+
+![](http://p1.pstatp.com/large/353000cc68e85eb5197)
+
+大家看一下device的id，比如：
+
+hw:0 代表的是我第一个设备，系统默认的声卡 #一般都是选这个
+
+hw:3 代表我第二个设备HDMI #因为shairport只支持声音的传输，所以不选这个
+
+注：如果aplay命令没有输出或者出现错误提示，一种可能是你声卡禁用了，还有就是你的声卡驱动，linux不支持。解决办法就是自己下载编译alsa驱动，网上有这方面帖子。
+
+mixer_control_name = "PCM"; #这个就是要制定音量控制器的名称，如果你不懂的话就是选默认PCM就好了，瞎选程序启动会有问题
+
+保存好配置之后，运行：
+
+sudo /etc/init.d/shairport-sync start
+
+大功告成，拿出iphone从屏幕下方呼出菜单，看到Airplay的字样了吧：
+
+![](http://p3.pstatp.com/large/34c000faf7497a01e58)
+
+选择好你搭建好的设备（第二个）：
+
+![](http://p3.pstatp.com/large/358000ee58337b61d3e)
+
+打开QQ音乐，选一首歌试试吧。由于本人不是发烧友，所以此篇文章只算是抛砖引玉，这个东西可以玩儿的很灵活，没有MiniPC的可以买个蓝莓派，而且官方也是推荐用这个。音频处理这块可以自行添加USB声卡什么的。。。usb音频设备的ID选择可以参考文章
+
+总结一下，歌曲的播放全部由我自己的手机控制、包括音量调节，而且不用额外安装手机客户端。只要是能播放音乐的软件都能通过这个方式进行播放。当然了缺点就是只有苹果设备才能使用这个技术，还有就是播放效果和质量，待进一步使用和观察。目前来说小pc的利用率很高了，算是媒体控制中心，负责音乐点播、视频点播、科学上网、防止dns污染。hdmi接口接的是30几寸电视，插上U盘就能播放720P的MP4格式的电影，效果还不错，不过要买个无线键鼠操作配合使用。由于显卡是集成的，没有硬解压，CPU软解占用率在20%-40%之间，CPU是赛扬4核的，内存4G，硬盘128G固态，没有卡顿现象（至少720P不会）CPU温度保持在30-40度左右，内存占用在800来M。小pc的音频线接的是我的音箱，这样放歌的话也不会跟电视冲突。而且播放器中可以选择音频的输出（声卡或者HDMI），如下图所示：
+
+![](http://p1.pstatp.com/large/345000fa668693d1d97)
+
+![](http://p1.pstatp.com/large/34c000faf77303836ff)
+
+Redhat系列的操作系统的安装方法，可以参考作者的主页
+
+如果Debian系列的安装方法还有人觉得非常麻烦，官方也有编译好的deb包可以直接下载安装
+
+注：直接下载安装包的话，软件版本肯定不如github上的新，所以使用体验和特性也会不太一样。

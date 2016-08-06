@@ -1,0 +1,55 @@
+
+---
+layout: post
+title: GRUB2 的零日漏洞影响 Linux 用户， Ubuntu、RHEL 补丁现已推出
+categories:
+- 今日头条
+tags:
+---
+				Canonical 的最新 Ubuntu Security Notice 显示，在 GRUB2(GNU GRand Unified Bootloader) 中存在一个零日安全漏洞，将会影响到 GRUB 版本为2.02 Beta 的 GNU/Linux 发行版。
+
+该安全漏洞被 Ismael Ripoll 和 Hector Marco 发现，当引导程序配置的是由密码保护进行身份认证的时候，它不能正确处理退格键，从而允许本地攻击者绕过 GRUB 的密码保护。
+
+包括 Ubuntu 15.10 (Wily Werewolf), Ubuntu 15.04 (Vivid Vervet), Ubuntu 14.04 LTS (Trusty Tahr), and Ubuntu 12.04 LTS (Precise Pangolin) 在内的发行版都受此影响，不过 Ubuntu 和RHEL 的补丁已经推出了，存在安全隐患的同学建议立即采取措施。
+
+![](http://p3.pstatp.com/large/10672/3628252718)
+
+如果一个漏洞被发现后，在当天，或更准确的说是在24小时内，立即被恶意利用，出现对该漏洞的攻击方法或出现攻击行为，那么该漏洞被称为“零日漏洞”，该攻击被称为“零日攻击”。（摘自中国人民共和国工业和信息化部：http://www.miit.gov.cn/n11293472/n11295344/n11297007/12457690.html）
+
+GNU GRUB（简称“GRUB”）是一个来自GNU项目的启动引导程序。GRUB是多启动规范的实现，它允许用户可以在计算机内同时拥有多个操作系统，并在计算机启动时选择希望运行的操作系统。GRUB可用于选择操作系统分区上的不同内核，也可用于向这些内核传递启动参数。GNU GRUB的前身为Grand Unified Bootloader。它主要用于类Unix系统；同大多Linux发行版一样，GNU系统也采用GNU GRUB作为它的启动器。Solaris从10 1/06版开始在x86系统上也采用GNU GRUB作为启动器。
+
+Grub 2 是新一代的Grub，它实现了一些Grub中所没有的功能：
+
+1、模块化设计
+
+不同于Grub的单一内核结构，Grub 2 的功能分布在很多的小模块中，并且能在运行时动态装载和卸除。
+
+2、支持多体系结构
+
+Grub 2可支持PC(i386), MAC(powerpc)等不同的体系机构，而且支持最新的EFI架构。
+
+3、国际化的支持
+
+Grub 2 可以支持非英语的语言。
+
+4、内存管理
+
+Grub 2 有真正的内存管理系统。
+
+5、脚本语言
+
+Grub 2 可以支持脚本语言，例如条件，循环，变量，函数等。
+
+(摘自百度百科：http://baike.baidu.com/link?url=XuPkGVwAjqvQ35gD1JpDVAPELoKDCSE69arrMWJb9dn3iW4oMeQ9IUDkq5XeAOBHVvP5aZNtmBfR7XhO-Nav7q)
+
+LinuxStory 有情怀的资讯网 www.linuxstory.org，现有的内容：
+
+#LinuxStory 分享时间# 包含技术、资讯、科普、教程等相关文章；
+
+#LinuxStory 资讯速递# 每日资讯，包含科技、资讯等方方面面；
+
+#LinuxStory 说# 新鲜有趣的小知识，特色语音节目；
+
+#LinuxStory 人物访谈# 中国开源大咖的故事访谈。
+
+我们不是最好的，但是我们一直在努力争取在你心中的地位！

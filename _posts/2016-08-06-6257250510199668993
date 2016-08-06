@@ -1,0 +1,45 @@
+
+---
+layout: post
+title: ［预警］openssl再爆漏洞了，官方建议禁用SSLv2
+categories:
+- 今日头条
+tags:
+---
+				1.Drown漏洞是什么?
+
+DROWN出了一个严重的漏洞影响HTTPS和其他依赖SSL和TLS的服务,SSL和TLS协议保证用户上网冲浪,购物,即时通信而不被第三方读取到。
+
+DROWN允许攻击者破坏这个加密体系,读取或偷取敏感通信,包括密码,信用卡帐号,商业机密,金融数据等。经过我们的探测识别,大概有33%的HTTPS服务容易受此漏洞的影响。
+
+2.我的站点受到影响吗?
+
+现在流行的服务器和客户端使用TLS加密,然而,由于错误配置,许多服务器仍然支持SSLv2,这是一种古老的协议,实践中许多客户端已经不支持使用SSLv2。
+
+DROWN攻击威胁到还在支持SSLv2的服务端和客户端,他允许攻击者通过发送probe到支持SSLv2的使用相同密钥的服务端和客户端解密TLS通信。
+
+允许SSLv2连接,比想象中的要常见,由于错误配置和不当的默认配置,我们调查17%的HTTPS服务器一直支持SSLV2连接
+
+私
+钥被使用于其他支持SSLv2连接的服务,许多公司不允许使用相同的证书和私钥在他的WEB和EMAI服务,例如,下面这个案例,如果email服务支持
+sslv2,但是web服务不支持,攻击者能够利用EMAIL服务的sslv2漏洞切断到web服务器的tls的连接。
+
+![](http://p3.pstatp.com/large/2cc00025a63ca0cb8e6)
+
+可以通过https://test.drownattack.com/?site=你的站点来查看是否受影响
+
+![](http://p3.pstatp.com/large/2cc00025a64c2359b1c)
+
+3.怎么保护我自己?
+
+确保你的私钥不适用于其他的支持sslv2服务,包括web,smtp,imap,pop服务等。禁止服务器端的sslv2支持。如果是Openssl,可以参考安装最新的补丁和操作辅导。https://www.openssl.org/blog/blog/2016/03/01/an-openssl-users-guide-to-drown/
+
+Microsoft IIS (Windows Server):iis 7和以上的版本默认已经禁止了sslv2。
+
+详细的漏洞描述原理报告https://drownattack.com/drown-attack-paper.pdf
+
+4、影响
+
+大部分支持SSLv2的服务器均会受到该漏洞影响！
+
+![](http://p1.pstatp.com/large/2b6000326044e9a9d6a)

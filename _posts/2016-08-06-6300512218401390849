@@ -1,0 +1,17 @@
+
+---
+layout: post
+title: 服务器系统信息采集与监控开源工具Tsar
+categories:
+- 今日头条
+tags:
+---
+				Tsar是淘宝技术团队开源的服务器信息采集与监控工具。支持实时查看，方便了解应用和服务器的信息!（如cpu，io，mem，tcp等）以及应用数据（如squid haproxy nginx等），并可随时查看历史记录。采用模块化设计，各个模块专门采集一类数据，通过配置文件和参数，或者根据需求编写采集模块。支持本机查看或者输出到远程数据库，可与nagios的被动监控配合，监控和收集服务器和关键应用的信息。
+
+![](http://p3.pstatp.com/large/9700002efa35b7c852e)
+
+源代码下载：https://github.com/alibaba/tsar
+
+微信订阅号：开源派 （opensourcepie）
+
+开源派官网：osp.io

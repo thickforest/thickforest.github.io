@@ -1,0 +1,190 @@
+
+---
+layout: post
+title: 开源系统漏洞扫描工具Binmap使用文档
+categories:
+- 今日头条
+tags:
+---
+				开源工具binmap可以帮助安全研究人员扫描文件系统，可用于获取二进制文件信息、依赖关系以及软连接等。这款工具也提供了一个全局的文件视图，可以基于此开发出其他的功能。
+
+工具下载地址：https://github.com/quarkslab/binmap
+
+找漏洞并不单单靠运气，也和策略有关
+
+自从grep成为研究中的常用工具后，漏洞研究的方式也变了很多。去年，模糊测试很快的成为一匹黑马，越来越多的被运用起来。
+
+对于那些对漏洞感兴趣的人，研究越来越复杂的系统对他们变得越来越困难。在他们开始挖掘的时候，就会发现内核和应用程序都是无比复杂的东西。现在研究者不得不思考一个有效的策略来找到漏洞：从哪里找？用什么工具找？等等
+
+其中一个很重要的思路就是，去哪儿找？很多的正在用的一些参数是不是一些很古老的代码库中的内容？他是否很复杂（例如一个解析器）？还是很容易达到？一个组件漏洞的影响有多大？
+
+Binmap的设计就是为了减小漏洞的影响。那么首先要做的就是先获取到整个系统的情况，而这也就意味着我们要先扫描系统的二进制文件，这些文件使用的库以及他们的符号链接。
+
+Binmap被设计的非常模块化，这样可以提供多种不同的数据格式并且获取到系统的不同信息。它必须很容易添加一个新的文件类型并且提取出他的信息。通过映射，它就会很容易知道该去找那些漏洞，或者说可以很容易去测试CVE的漏洞。
+
+通过binmap获取到存在CVE漏洞的二进制文件清单，命令行如下，想用binmap命令扫描系统，在加载结果：
+
+$ binmap scan /path/to/debchroot -o chroot.dat
+
+$ python>>> import blobmap>>> db = blobmap.Blobmap('chroot.dat').last() # load last scan database>>> for key in db.keys(): # look for the libc... if 'libc' in key:... print key
+
+/lib/x86_64-linux-gnu/libc.so.6/lib/x86_64-linux-gnu/libc-2.17.so
+
+[...]>>> libc_users = db.predecessors('/lib/x86_64-linux-gnu/libc.so.6') # get all binaries using the libc>>> for libc_user in libc_users:... metadata = db[libc_user]... if 'gethostbyname' in metadata.imported_symbols:... print libc_user, 'uses gethostbyname and may be vulnerable'... if 'gethostbyname2' in metadata.imported_symbols:... print libc_user, 'uses gethostbyname2 and may be vulnerable'/usr/lib/gnupg/gpgkeys_finger uses gethostbyname and may be vulnerable
+
+/bin/hostname uses gethostbyname and may be vulnerable
+
+/usr/lib/libxapian.so.22.6.3 uses gethostbyname and may be vulnerable
+
+/usr/lib/perl/5.18.1/auto/Socket/Socket.so uses gethostbyname and may be vulnerable
+
+/usr/bin/logger uses gethostbyname and may be vulnerable
+
+/sbin/agetty uses gethostbyname and may be vulnerable
+
+/sbin/getty uses gethostbyname and may be vulnerable
+
+/bin/tar uses gethostbyname and may be vulnerable
+
+/usr/bin/getent uses gethostbyname2 and may be vulnerable
+
+Binmap简介
+
+为了找到二进制文件和它引用到的库，有三个需要解决的问题：
+
+1.二进制文件加载库是因为他们需要动态的调用：在编译的时候这些就被捆绑上了，然后运行的时候，系统开始加载这些库。2.二进制文件在执行的时候加载这些库：在加载的时候，会有一个函数明确的显示调用哪个库（例如，dlopen或者LoadLibrary）3.在二进制文件中，第三方库是静态的链接：系统和二进制本身不做任何事情，只有调用的库嵌入在二进制文件中。
+
+解决第一种情况很简单，binmap就直接可以解决。第二种需要动态分析，这一点binmap还不支持。第三种情况虽然也是静态的，但是它的实现要复杂的多，binmap也没有提供。这也是为什么作者把binmap开源了。
+
+系统的地图仓库
+
+Binmap会建立一个hash数据库，并且把系统的信息存在里面。这样做的目的是为了得到一个不同系统组成的系统信息仓库，并且更新这个数据库，以此追踪操作系统的发展。
+
+这不止在比较二进制文件的时候有用，对于整个系统的比较也是非常有用的，我们可以通过比较看到哪些二进制文件发生了改变，哪些是新建的，哪些被移动了等等。
+
+作者打算将数据库做成一个仓库，里面的内容不只是由他们自己创建的，也会由一些自愿者发送过来。Binmap产生的文件将会被拷贝到gpg上，以确保数据库的完整性。
+
+这些步骤都需要自动化完成，因此，作者设置了一个后台程序可以下载并安装一个系统，然后运行binmap来创建数据库，并且更新它需要的内容。当然，开发社区中有很多工具可以帮助达到这点。
+
+安全社区需要有一个纯净的文件hash值以及相关信息，这样的话，就能快速分析出一个文件是否是坏文件，这点IRMA有实现了：https://irma.quarkslab.com/
+
+支持静态库
+
+正如上文所描述的，这点要实现是个很大的挑战。在没有找到适合的代码前，作者并不希望立刻投入进去。
+
+但现在可以开始搞了，这个功能需要大量的人力物力，这和Silvio Cesare在二进制方面的工作很像。
+
+在做恶意软件分析的人应该会遇到同样的问题：就是会意识到从一小段代码（恶意软件中的）到其他的二进制文件，这个是非常困难的。通过把binmap开源，作者希望binmap能够对二进制感兴趣的人有所帮助。
+
+查找信息
+
+在这里其实收集信息并不是最难的，信息检索和展示才是这里的难点。作者为binmap开发了一个web前端：它可以加载数据库，并且可以把文件间的关系用图展现出来。作者也提供了一些api可以直接访问数据库以及自动化一些操作，并且希望可以有更多人加入进来，不断的改善它的用户体验。
+
+![](http://p3.pstatp.com/large/7da00029a9eaa1cdb5d)
+
+风险地图
+
+在分析一个系统的时候，知道以前出现bugs的位置是非常有用的。通过报告来记录二进制文件和库的漏洞信息（例如CVE）就能画一个风险地图，然后就能很直观的看到那些组件更容易被攻击，而这样就能更有效的组织防御。
+
+作者目前已经开始通过binmap和一些外部程序收集这些信息了。主要专注于以下两种信息：
+
+1.文件的版本信息：我们试图提取文件的版本信息，一方面从文件本身提取，另一方面从文件的名字。然后，将他与官网中的最新版本进行对比。通过这个方式就能最快的知道该系统的更新速度。2.很多的漏洞被报出来了，但是并不是所有漏洞都有CVE。不过依然可以通过CVE得到很多文件的名称。
+
+最后，作者会把系统收集到的信息和外围信息进行对比，从而得到更多的危险信息。
+
+如何使用Binmap？
+
+首先，现成Github上下载代码：https://github.com/quarkslab/binmap
+
+安装
+
+Debian/Ubuntu
+
+我们需要安装包：
+
+cmakeg++libboost-python1.55-devlibboost-system1.55-devlibboost-program-options1.55-devlibboost-filesystem1.55-devlibboost-regex1.55-devlibboost-serialization1.55-devzlib1g-devlibssl-devlibelfg0-dev
+
+然后运行：
+
+$ mkdir _build
+$ cd _build
+$ cmake ..
+$ make
+
+最后，在程序目录下运行：
+
+$ make install
+
+Windows
+
+我们需要先安装好Visual Studio 然后：
+
+1.安装cmake并且把他设定到环境变量
+
+2.下载zlib http://www.zlib.net/
+
+3.下载boost http://boost.teeks99.com/
+
+然后，我们运行以下命令：
+
+$ cmake -DBoost_DEBUG=ON -G "Visual Studio 12" -DBoost_USE_STATIC_LIBS=ON -DBOOST_ROOT=D:\Programming\Libraries\boost_1_55_0 -DBOOST_LIBRARYDIR=D:\Programming\Libraries\boost_1_55_0\lib32-msvc-12.0 -DZLIB_LIBRARY=D:\Programming\Libraries\zlib-1.2.8 -DZLIB_INCLUDE_DIR=D:\Programming\Libraries\zlib-1.2.8
+
+使用
+
+使用binmap需要以下两步：
+
+1.扫描一个目录（或者文件），例如：
+
+$ ./binmap scan -v1 /usr/local -o local.dat
+
+这个命令可以创建一个数据库，将扫描到的信息存入数据库中。
+
+2.将数据库导出成dot：
+
+$ ./binmap view -i local.dat -o local.dot
+
+或者用下文提供的python接口获取信息
+
+Python API
+
+blobmap模块提供了对binmap数据库只读的访问功能：
+
+>>> import blobmap
+
+首先，先加载数据库：
+
+>>> blobs = blobmap.BlobMap('local.dat')
+
+BlobMap是一个有序的二进制文件信息对象，是按时间顺序排列的，通过last函数取出最近的一个记录：
+
+>>> blob = blobs.last()
+
+一个blob基本上是一个有向图，图的节点是二进制文件，图的边表示的是依赖关系，如下：
+
+>>> clang_metadata = blob['/usr/local/bin/clang']>>> print(str(clang_metadata))clang: 8fcffc4a97cd4aaa1a32938a9e95d3b253476121(13223 exported symbols)(1303 imported symbols)(1 hardening features)
+
+以下是访问每个独立的节点：
+
+>>> clang_metadata.hash8fcffc4a97cd4aaa1a32938a9e95d3b253476121>>> clang_metadata.hardening_features
+{'fortified'}>>> help(clang_metadata)
+[...]
+
+可以通过successors 和predecessors函数导航图：
+
+>>> blob.successors('/usr/local/bin/clang')
+{'/lib/x86_64-linux-gnu/libtinfo.so.5',
+ '/lib/x86_64-linux-gnu/libz.so.1',
+ '/lib32/libc.so.6',
+ ...}
+
+也可以在两个blob之间进行比较：
+
+>>> from blobmap import BlobMap as BM>>> b = BM('mynewprog.dat')>>> g1, g0 = [b[k] for k in b.keys()][-2:]>>> diff = g0.diff(g1)>>> diff.added
+
+{'/.../libmy1.so'}>>> diff.removed
+
+{'/.../libmy0.so'}>>> diff.updated
+
+{'/.../myprog'}
+
+*参考来源：blog.quarkslab，FB小编东二门陈冠希编译，转载请注明来自FreeBuf黑客与极客（FreeBuf.COM）

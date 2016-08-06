@@ -1,0 +1,151 @@
+
+---
+layout: post
+title: 原创技术干货 | 解读Linux安全机制之栈溢出保护
+categories:
+- 今日头条
+tags:
+---
+				0x00 概述
+
+栈溢出保护是一种缓冲区溢出攻击缓解手段，当函数存在缓冲区溢出攻击漏洞时，攻击者可以覆盖栈上的返回地址来让shellcode能够得到执行。当启用栈保护后，函数开始执行的时候会先往栈里插入cookie信息，当函数真正返回的时候会验证cookie信息是否合法，如果不合法就停止程序运行。攻击者在覆盖返回地址的时候往往也会将cookie信息给覆盖掉，导致栈保护检查失败而阻止shellcode的执行。在Linux中我们将cookie信息称为canary(以下统一使用canary)。 
+
+gcc在4.2版本中添加了-fstack-protector和-fstack-protector-all编译参数以支持栈保护功能，4.9新增了-fstack-protector-strong编译参数让保护的范围更广。以下是-fstack-protector和-fstack-protector-strong的区别：
+
+![](http://p3.pstatp.com/large/cd0008fedbe77c36f0)
+
+Linux系统中存在着三种类型的栈：
+
+应用程序栈：工作在Ring3,由应用程序来维护；内核进程上下文栈：工作在Ring0，由内核在创建线程的时候创建；内核中断上下文栈：工作在Ring0，在内核初始化的时候给每个CPU核心创建一个。
+
+0x01 应用程序栈保护
+
+1. 栈保护工作原理
+
+下面是一个包含栈溢出的例子：
+
+![](http://p3.pstatp.com/large/10a00016eb322382123)
+
+我们先禁用栈保护功能看看执行的结果
+
+![](http://p1.pstatp.com/large/cd0008ff38d74d24a4)
+
+当返回地址被覆盖后产生了一个段错误，因为现在的返回地址已经无效了，所以现在执行的是CPU的异常处理流程。我们打开栈保护后再看看结果：
+
+![](http://p3.pstatp.com/large/10a00016ef1920b6161)
+
+这时触发的就不是段错误了，而是栈保护的处理流程，我们反汇编看看做了哪些事情：
+
+![](http://p3.pstatp.com/large/10900016f8ac83529df)
+
+![](http://p3.pstatp.com/large/10900016f93f4dcb65b)
+
+我们看到函数开头(地址：0x40061f)处gcc编译时在栈帧的返回地址和临时变量之间插入了一个canary值，该值是从%fs:0x28里取的，栈帧的布局如下：
+
+![](http://p3.pstatp.com/large/10900016f98078b6871)
+
+在函数即将返回时(地址：0x400655)检查栈中的值是否和原来的相等，如果不相等就调用glibc的__stack_chk_fail函数，并终止进程。
+
+2. canary值的产生
+
+这里以x64平台为例，canary是从%fs:0x28偏移位置获取的，%fs寄存器被glibc定义为存放tls信息的，我们需要查看glibc的源代码：
+
+![](http://p3.pstatp.com/large/10900016fae5d23b243)
+
+结构体tcbhead_t就是用来描述tls的也就是%fs寄存器指向的位置，其中+0x28偏移位置的成员变量stack_guard就是canary值。另外通过strace ./test看到在进程加载的过程中会调用arch_prctl系统调用来设置%fs的值：
+
+![](http://p3.pstatp.com/large/ce0008fe787ad34369)
+
+产生canary值的代码在glibc的_dl_main和__libc_start_main函数中：
+
+![](http://p3.pstatp.com/large/cd0008ffa046348cac)
+
+_dl_random是一个随机数，它由_dl_sysdep_start函数从内核获取的。_dl_setup_stack_chk_guard函数负责生成canary值，THREAD_SET_STACK_GUARD宏将canary设置到%fs:0x28位置。
+
+在应用程序栈保护中，进程的%fs寄存器是由glibc来管理的，并不涉及到内核提供的功能。
+
+3. x32应用程序栈保护
+
+解读完了x64的实现，我们来看看x32下面的情况，我们还是使用上面例子的代码在x32的机器上编译，得到下面的代码：
+
+![](http://p3.pstatp.com/large/10900016fd017dc38fd)
+
+在x32下的实现和x64是一样的，只不过canary值保存在%gs:0x14中，glibc使用%gs寄存器来保存TLS信息。
+
+0x02 内核态栈保护
+
+Linux的CC_STACKPROTECTOR补丁提供了对内核栈溢出保护功能，该补丁是Tejun Heo在09年给主线kernel提交的。
+
+2.6.24：首次出现CONFIG_CC_STACKPROTECTOR编译选项并实现了x64平台的进程上下文栈保护支持；2.6.30：新增对内核中断上下文的栈保护和对x32平台进程上下文的栈保护支持;3.14：对该功能进行了一次升级以支持gcc的-fstack-protector-strong参数，提供更大范围的栈保护。
+
+1. 栈保护工作原理
+
+我们参照前面的代码写了一个可加载模块并反汇编来看看是怎么样的：
+
+![](http://p3.pstatp.com/large/10a00016f639825f1ec)
+
+内核函数的栈保护工作原理和应用程序的栈保护是一样的，只不过canary是从内核%gs:0x28位置取的，并且检查失败时调用内核的__stack_chk_fail函数并且产生panic。
+
+2. 中断上下文canary值的产生
+
+x64平台
+
+![](http://p3.pstatp.com/large/ce0008febb7d8f377f)
+
+当内核刚进入64位模式的时候，startup_64函数为内核的初始化工作设置好了%gs寄存器和分配栈空间，代码在arch/x86/kernel/head_64.S中，下面是startup_64函数片段：
+
+![](http://p1.pstatp.com/large/cd0008ffe5e93c1785)
+
+其中%gs被定义为percpu变量，可用irq_stack_union联合体表示：
+
+![](http://p3.pstatp.com/large/ce0008fee89b726c62)
+
+startup_64的末尾会跳转到start_kernel函数，该函数也是canary产生的地方。start_kernel调用了boot_init_stack_canary，它的作用就是产生一个随机的canary并且应用到当前%gs:0x28位置：
+
+![](http://p3.pstatp.com/large/10a00016f9ac88d1726)
+
+start_kernel函数是由boot CPU执行的，在多核心的情况下还会在每个CPU核心初始化的时候分别调用boot_init_stack_canary来产生canary值。我们发现中断上下文的canary值保存在每个核心的idle进程task_struct->stack_canary中，这样当上下文切换的时候就不会丢失了。
+
+x32平台
+
+在x32平台上的percpu区域是保存在%fs中的，内核初始化的时候会为每个cpu核心产生canary值存放在percpu区域的stack_canary成员中备用。
+
+![](http://p3.pstatp.com/large/ce0008ff0ad93d9bbf)
+
+但是gcc要求canary值必须从%gs:0x14偏移的位置获取，因此必须让%gs:0x14指向percpu变量stack_canary.canary才行。首先内核选用GDT第28项描述的数据段来存放canary信息：
+
+![](http://p3.pstatp.com/large/10a00016fc444db80c5)
+
+![](http://p3.pstatp.com/large/cd00090036908178b9)
+
+接下来只要设置%gs寄存器来索引该段描述符就可以了：
+
+![](http://p3.pstatp.com/large/ce0008ff3dba5fbfd8)
+
+到这里x32平台的%gs:0x14偏移的canary值已经初始化完成了。
+
+3. 进程上下文canary值的产生
+
+无论是内核线程还是用户线程，当一个线程创建的时候，内核给线程生成一个canary值存放在task_struct结构体的stack_canary成员变量中，见dup_task_struct函数：
+
+![](http://p2.pstatp.com/large/1090001706bd7aa825e)
+
+接下来内核要做的事情就是当发生线程切换的时候让该canary值设置到%gs:0x28偏移处，这个是在switch_to宏中完成的：
+
+![](http://p1.pstatp.com/large/cd0009006782aaad22)
+
+![](http://p3.pstatp.com/large/10a0001700e26630aa1)
+
+上面是x64平台上的代码并且忽略了与canary值切换无关的部分，它把task_struct->stack_canary赋值到percpu变量irq_stack_union.stack_canary，这样我们代码中找到的canary值就是当前上下文的了。在x32平台上也是类似的只不过percpu变量是stack_canary.canary。
+
+总结： 
+
+在gcc、glibc和内核的共同支持下，Linux对所有的可能发生缓冲区溢出的栈返回地址都进行了保护：
+
+在应用进程上下文，canary值由glibc产生并保存在tcbhead_t中，当canary检查失败时执行glibc的__stack_chk_fail，并终止进程；在内核进程上下文，canary值在内核copy_process时产生并保存在task_struct中，当canary检查失败时执行内核的__stack_chk_fail，并产生panic；在内核中断上下文，canary值在start_kernel以及每个CPU核心初始化的时候产生并保存在每个CPU核心的idle进程task_struct中，当canary检查失败时执行内核的__stack_chk_fail，并产生panic。
+
+0x03 参考资料
+
+http://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/commit/?id=60a5317ff0f42dd313094b88f809f63041568b08https://lwn.net/Articles/584278/https://lwn.net/Articles/318565/http://blog.aliyun.com/1126https://outflux.net/blog/archives/2014/01/27/fstack-protector-strong/?utm_source=tuicool&utm_medium=referralhttp://www.ibm.com/developerworks/cn/linux/l-overflow/https://github.com/wishstudio/flinux/wiki/Difference-between-Linux-and-Windowshttps://xorl.wordpress.com/2010/10/14/linux-glibc-stack-canary-values/
+
+本文由椒图科技原创，转载请注明出处，谢谢！

@@ -1,0 +1,288 @@
+
+---
+layout: post
+title: PHP程序注入漏洞详解
+categories:
+- 今日头条
+tags:
+---
+				注入，可以理解就是把用户可控的一些变量，带入到数据库操作当中，并且造成改变sql原意的效果。譬如注册用户的逻辑中，检测用户名是否存在的时候，把用户提交过来的用户名拿到数据库中去查询。如果代码逻辑中没有对用户名做好过滤的话，用户就可以提交一些特殊字符来完成注入。
+
+![](http://p1.pstatp.com/large/b9e0003c6b6f71a7d1b)
+
+根据sql分类，注入一般分四种类型：
+
+select
+
+update
+
+insert
+
+delete
+
+如果有mysql error的话，这四种都能用报错注入，非常方便;如果没有mysql error
+
+select的注入：可以试下用union select+回显来注入，如果没有回显，那就只能够用盲注了。
+
+update的注入：如果是在update 
+set的位置的话，那么我们可以找找这个表的哪个column会被展示出来。例如如果一个update的注入点是在用户表且是在set位置可控的话，那么
+我们可以update email这个column，然后去用户资料看一下自己的email就出数据了，语句例如update table set 
+email=(select user());如果是在where后的话，那么一般也就是盲注了。
+
+insert的注入：一般也是通过找哪个column会不会显示出来，尽量把要出的数据插入到这个column里面去。 如果没显示的话，也是盲注。
+
+delete的注入：一般都是盲注了。
+
+数字型注入主要就是因为他的变量并没有用单引号引住。但是基本上都是被强制类型转换了，譬如intval($username)啥的。但是有时候会有遗漏的嘛。
+
+而字符型和搜索型的，都是会有单引号引住的。所以需要闭合单引号再来进行注入。
+
+说到单引号不得不说个php.ini里的配置Magic_quotes_gpc，在稍微高点的版本默认都是on，但是却在5.4就已经废除了。
+
+从字面意思上来看，就是对GPC QUOTE嘛。GPC对应的就是GET、POST和COOKIE，其中的内容，会被转义的字符为 ' “ \ NULL，转义的方式是在前面添加上一个转义符。从而导致了失去本来的意义，无法闭合单引号进行注入。
+
+全局没有做addslashes的
+
+像这种全局没有对GET/POST/COOKIE做addslashes的，这种厂商基本是会在查询的时候，再对一些用户可控的变量进行addslashes，甚至是不进行addslashes直接带入查询的。
+
+这样的就算在查询的时候进行addslashes，在很多时候也都能找到几处遗漏了addslashes的。这种的比较简单，不多说。
+
+全局做addslashes
+
+现在稍微好一点的厂商都知道了在全局文件中对GET/POST/COOKIE做addslashes 
+(甚至是在带入查询的函数中再做了转义或者预编译，这种给跪) 所以基本不用担心哪里遗漏了哪里忘记了addslashes) 这种的基本是首先先get
+ magic quotes gpc 
+判断gpc是否开启，如果没开启的话，再调用addslashes来转义。如果开启的话，就不用来addslashes了。没开启就
+addslashes。
+
+下面讲一些常见的注入方式
+
+宽字节注入
+
+这个是一个老生常谈的问题, 从一开始的数据库字符集GBK的宽字节注入，到现在也有很久了。但是并不是字符集为GBK的就能宽字节注入。
+
+总有一些小伙伴说咋我看的cms字符集是gbk的，但是咋不能宽字节呢？
+
+这是因为数据库的连接方式不同。数据库连接的时候，使用了Set names gbk这样的就能宽字节。
+
+但是现在这样的基本都看不到了。因为基本都是设置了二进制读取了。这样的宽字节基本没了, 却有了另外一种，因为转换字符集造成的宽字节注入。譬如从utf8转到gbk，或者从gbk转到utf8什么的。
+
+例子: WooYun: 74cms 最新版 注入8-9
+
+解析：“錦”字，从UTF8转成GBK之后成了 %e5%5c 74，cms对GET/POST/COOKIE等都做了addslashes ，所以'转义后为\' ->%5C %e5%5c%5c' 两个\，则单引号出来了。
+
+例子2: WooYun: qibocms 下载系统SQL注入一枚(官网可重现)
+
+解码导致注入
+
+因为在全局文件中addslashes，如果我们能找到一些解码的，例如urldecode、base64_decode之类的，那么我们先提交encode之后的，那么就能不被转义了。然后decode后，再带入查询，造成了注入，无视gpc。
+
+这种的很常见。
+
+例子很多 随便找一个
+
+例子: WooYun: qibocms B2b 注入一枚 //qibocms 注入
+
+例子: WooYun: phpdisk V7 sql注入2 //phpdisk 注入
+
+变量覆盖导致的注入
+
+常见的变量覆盖 有啥extract 和 parse_str 函数啥的，当然还有$$。
+
+变量覆盖得结合一些具体的场景了。
+
+例如extract($_POST)啥的，直接从POST数组中取出变量。这样的还是遇到过几个，然后覆盖掉之前的一些变量。
+
+覆盖的话，一般是覆盖掉表前缀之类的。譬如Select * from $pre_admin where xxx像这种的就覆盖掉$pre，然后直接补全语句然后注入。
+
+例子: WooYun: qibocms分类注入一枚可提升自己为管理
+
+例子2: WooYun: phpmps 注入一枚
+
+当然 $$ 也挺经常用到的 这个例子很不错。
+
+例子3: WooYun: MetInfo最新版(5.2.4)一处SQL盲注漏洞
+
+一些replace造成的注入
+
+一些cms中，总有一些逗比过滤函数，譬如会把’ 啥的replace成空，但是他似乎忘记了自己全局有转义。
+
+这时，当用户提交一个'，全局转义成\'，然后这过滤函数又会把'替换成空，那么就留下了\，导致可以吃掉一个单引号，是double query的话
+
+select * from c_admin where username=’admin\’ and email=’inject#’
+
+这样就可以注入了。
+
+例子: WooYun: PHPCMS全版本通杀SQL注入漏洞
+
+当然还有一些replace是用户可控的。就是说用户可以想把啥提交成空就提交成空，例如很久前的cmseasy和ecshop的那个注入。
+
+例如这段代码：
+
+$order_sn = str_replace($_GET['subject'],'',$_GET['out_trade_no']);
+
+这里因为会被转义，如果提交'就成 \'，这里可以看到，这里清成空的，是我们get来的，那我们就想办法把\给replace掉。
+
+但是如果我们GET提交把\给replace，那么会被转义，就是replace掉\。
+
+但是我们只是\'，所以不能把\去掉，如果我有\，还要你清空个毛啊。
+
+这里我们来理清一下思路：
+
+Addslashes 会对' " \ NULL 转义
+
+' => \'" => \"\ => \\NULL => \0
+
+那这里我们就提交%00’，就会被转义生成 \0\' ，这时候我们再提交把0替换成空，那么就成了\'，单引号也就成功出来了。
+
+例子: WooYun: cmseasy绕过补丁SQL注入一枚
+
+SERVER未转义导致的注入
+
+因为在很多cms中，基本上都只是对GET POST COOKIE 进行addslashes，而没有对SERVER进行转义。而一些SERVER的变量也是用户可以控制的。
+
+例如什么 QUERY_STRING X_FORWARDED_FOR CLIENT_IP HTTP_HOST ACCEPT_LANGUAGE 很多。
+
+这里最常见的当然也就是X_FORWARDED_FOR，这个一般是在ip函数中用到。如果后面没有进行验证ip是否合法的话就直接return，这个大部分时候都会导致注入。
+
+例子1: WooYun: Phpyun注入漏洞二
+
+这里说到验证ip，这里基本都是用的正则来验证是否合法。而一些厂商连正则都写错。
+
+例如在cmseasy中的验证ip的正则中(%.+)，导致了后面可以写任意字符。
+
+例子2: WooYun: CmsEasy最新版本无限制SQL注射
+
+FILES未转义导致的注入
+
+这个也差不多，也是因为全局只对COOKIE GET POST 转义，遗漏了FILES，且不受gpc。
+
+FILES注入一般是因为上传，会把上传的名字带到insert当中入库。然后这里文件的名字是我们可以控制的，所以导致了注入。
+
+例子: WooYun: qibocms 黄页系统SQL注入一枚
+
+还有一些，在入库的时候才对文件的名字进行了转义，而在获取后缀后，在入库的时候对文件名转义了却没有对后缀转义也导致了注入
+
+例子: WooYun: Supesite 前台注入 #2 (Insert)
+
+未初始化造成的注入
+
+很久以前php<4.20的时候，为了方便，register_globals默认都是on。
+
+而到了后面register_globals的弊端也显现了出来, 所以也在很久以前默认都是off了。
+
+而到了现在, 很多cms却喜欢模仿register_globals 搞起了伪全局机制。
+
+例如啥qibocms metinfo destoon 啥的啊。
+
+这样是方便了不少, 但是如果哪里遗漏了初始化，那么就会导致注入了。感觉这种的挺好玩的 多找了几个例子。
+
+例子: WooYun: qibocms地方门户系统注入一个问题(demo测试)
+
+例子: WooYun: qibocms地方门户系统注入(多处类似,demo测试)
+
+例子: WooYun: 齐博地方门户系统SQL注入漏洞(无需登录可批量)
+
+例子: WooYun: 齐博整站/地方门户SQL注入漏洞
+
+数组中的key导致的注入
+
+因为在对全局转义的时候，很多cms都只是判断gpc是否开启，如果off，就对数组中的value就行addslashes，却忘记了对数组中的key进行转义。
+
+那么这样也导致了一个问题。也就是在Gpc off的时候那么数组的key没有被过滤，导致可以引入单引号。(听说低版本的php对二维数组中的key就算gpc on 也不会转义)
+
+如果哪里把数组中的key，读取出来，然后把key带入到了查询当中，那么也会造成安全问题。
+
+而且这样的例子很多。 简直惨不忍睹。
+
+例子: WooYun: qibocms V7 整站系统最新版SQL注入一枚 & 另外一处能引入转义符的地方。 //数组key的注入
+
+例子: WooYun: qibocms多个系统绕过补丁继续注入2
+
+例子: WooYun: qibocms全部开源系统 Getshell
+
+例子: WooYun: Discuz 5.x 6.x 7.x 前台SQL注入漏洞一枚
+
+offset造成的注入
+
+这种算是比较常见的一种注入的。
+
+代码大概如下：
+
+如果这里$_GET[a] 提交的是一个数组，且含有一个key为0的，那么$a就是对应的这个key的value。
+
+但是这里并没有强制要求为数组。
+
+那么我们提交一个字符串，那么后面的[0]就是截取的第一个字符。在全局中，单引号被转义为\'，截取第一个字符就为了\。\会吃掉一个单引号，然后就在$b处写入inject可以注入了。
+
+例子: WooYun: qibocms 地方门户系统 注入#4(demo测试)
+
+还有map发的那Disucz 7.2的那注入也一样。
+
+第三方插件导致的注入
+
+很常见的一种洞。
+
+比较常见的uc和alipay tenpay chinabank 啥的特别是uc，因为默认uc里面都会striplashes
+
+Uc的话，一般会遇到的问题是uckey默认的。或者是uckey这个常量根本就没有初始化，导致了uckey可控，再导致了Getshell或者注入啥的。
+
+还有tenpay 和 alipay 啥的，一些是因为忘记把过滤的文件包含进来，且key默认是空的，导致可以通过验证。
+
+例子: WooYun: phpmps 注入 (可修改其他用户密码,官网成功) // phpmps uc致注入
+
+例子: WooYun: PHPEMS (在线考试系统) 设计缺陷 Getshell一枚(官网已shell) /phpems uc致getshell
+
+例子: WooYun: 最土团购注入一枚可直接提升自己为管理 & 无限刷钱。 //最土团购 chinabank致注入
+
+例子: WooYun: Destoon Sql注入漏洞2(有条件) //destoon tenpay致注入
+
+例子: WooYun: CSDJCMS程式舞曲最新版Sql 一枚 //csdj tenpay致注入
+
+数字型注入
+
+其实也不只是数字型，只是说一些忘记加单引号的地方都这样。这里只是一般数字型的都不会加单引号的。
+
+一般的是这样：
+
+$id=$_GET[id];Select * from table where id=$id;
+
+$id，没被单引号，且没有被强制类型转换，那么就算addslashes了，由于不需要去闭合单引号，所以也无影响。
+
+例子: WooYun: qibocms 地方门户系统 注入#3 (demo测试)
+
+并不是一些数字型,一些其他的点也有些忘记加单引号，导致了注入。
+
+例子: WooYun: Supesite 前台注入 #3 (Delete)
+
+二次注入
+
+也是一种比较常见的注入。涉及到的是入库和出库。因为有全局转义，然后入库的时候
+
+insert into table (username) values ('a\'');
+
+这样入库后，转义符就会消失，那么就是a'。如果哪里再把这个查询出来，那么也就是出库的是a'，如果再把出库的 再带入到了查询啥的，那么就再次成功的引入了单引号导致了注入。
+
+例子: WooYun: phpyun v3.2 (20141226) 两处注入。
+
+例子: WooYun: qibocms 地方门户系统 二次注入#5(demo测试)
+
+例子: WooYun: 74cms (20140709) 二枚二次注入
+
+例子: WooYun: Hdwiki最新版二次注入一枚
+
+截取字符导致的注入
+
+有些cms有的时候会限制用户输入的长度，所以只截取一部分
+
+例如uchome的cutstr($asd,32);
+
+这样只允许输入32个字符，而且uchome里面的这个也没有像dz那样截取字符的后面加...
+
+那么如果我们提交一个1111111111111111111111111111111’
+
+被转义后成1111111111111111111111111111111\’
+
+然后截取32个字符，就是1111111111111111111111111111111\
+
+如果又是double query的话，吃掉一个单引号，然后下一个连着的可控变量又可以注入了

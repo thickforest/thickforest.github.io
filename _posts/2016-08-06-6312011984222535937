@@ -1,0 +1,77 @@
+
+---
+layout: post
+title: Electronic WeChat 比官方好用的微信PC版
+categories:
+- 今日头条
+tags:
+---
+				![](http://p3.pstatp.com/large/a9f0005d9272cacf18c)
+
+本文为喵分享所有，未经授权，禁止转载。欢迎转发分享，留言吐槽。
+
+微信官方提供了2中桌面版本，Mac版和Windows版。首先吐槽的就是Mac版的，万年不更新，UI无力吐槽。Windows版本的还要好一点。
+
+Mac版
+
+![](http://p1.pstatp.com/large/b0e00064f2d40f0b4b5)
+
+![](http://p3.pstatp.com/large/b0a00059891556258b2)
+
+Electronic WeChat
+
+开源地址：https://github.com/geeeeeeeeek/electronic-wechat
+
+下载地址：https://github.com/geeeeeeeeek/electronic-wechat/releases
+
+该微信客户端基于Electronic技术开发，支持Mac，Linux，Windows可谓是全平台。
+
+![](http://p3.pstatp.com/large/b0d000654c6ec86c19c)
+
+如何使用（会代码或者动手能力强的）全平台适用：
+
+在下载和运行这个项目之前，你需要在电脑上安装 Git 和 Node.js (来自 npm)。在命令行中输入:
+
+# 下载仓库git clone https://github.com/geeeeeeeeek/electronic-wechat.git# 进入仓库cd electronic-wechat# 安装依赖, 运行应用npm install && npm start
+
+根据你的平台打包应用:
+
+npm run build:osxnpm run build:linuxnpm run build:win
+
+提示: 如果 npm install 下载缓慢，你可以使用 淘宝镜像(cnpm) 替代 npm 。
+
+Mac懒人版安装方式：
+
+brew cask install electronic-wechat
+
+安装包下载安装方式：
+
+https://github.com/geeeeeeeeek/electronic-wechat/releases
+
+支持Linux 32/64，Mac，暂时木有Windows的，可以自行打包。
+
+官方新增 Windows 下的安装脚本 (感谢 @3dseals 的贡献)。
+
+补充：方法提供者：github ID geekxiaoke
+
+一种在 Windows 下给 electronic-wechat 添加快捷方式的方法
+
+不太喜欢每次打开 electronic-wechat 都得用命令行，所以用批处理弄了一个快捷方式，在此介绍一下。
+
+新建一个 txt 文档，改文件名为 electronic-wechat.bat ，编辑，写入以下内容：
+
+cd "c:\Program Files (x86)\Tencent\electronic-wechat"npm start
+
+保存，双击该批处理文件即可打开 electronic-wechat。
+
+这里的路径"c:\Program Files (x86)\Tencent\electronic-wechat"请根据自己的情况更改。
+
+但是还存在一个问题，以上批处理文件会附带打开一个命令行窗口，如果想要隐藏这个命令行窗口，请继续看下文。
+
+在同一目录下，新建一个 txt 文档，更名为 runbat.vbs ，编辑，写入以下内容：
+
+set ws=wscript.createobject("wscript.shell")ws.run "electronic-wechat.bat /start",0
+
+保存，然后双击该 vbs 文件，即可隐藏运行命令行窗口。
+
+![](http://p1.pstatp.com/large/b0d00008d9593a40ffe)

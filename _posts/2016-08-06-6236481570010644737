@@ -1,0 +1,61 @@
+
+---
+layout: post
+title: 2015年出现的十大流行Django库
+categories:
+- 今日头条
+tags:
+---
+				![](http://p3.pstatp.com/large/3d00042e4f,8033c183)
+
+昨天，我们介绍了2015年出现的十大流行Python库，今天我们把目光转向Django框架相关的库。在2015年，又出现了哪些受欢迎的Django库呢？
+
+1. Wooey
+
+![](http://p3.pstatp.com/large/610000e4d0,f20bf976)
+
+Wooey 是一个简单的Python脚本的Web UI 界面。它能够提供日常数据分析，文件处理等功能。
+
+2. Channels
+
+Channels还是一个正在开发中的Django库，但是已经吸引了很多开发者的注意。它的开发者是大名鼎鼎的Andrew Godwin，旨在增强Django的异步能力，同时让Django不仅仅局限于Request-Response模型，能够支持WebSocket、HTTP2推送和背景任务。
+
+3. HealthChecks
+
+![](http://p1.pstatp.com/large/3d00042e4e,60fab165)
+
+它是一个免费的开源的基于 cron 的监控服务。在 cron 里配置好监控只需要几分钟时间，却能让你晚上睡得更好！
+
+4. django-baker
+
+Django Baker可以帮助开发者快速启动项目。只要提供app名称，Django Baker就可以根据models.py文件中的models，自动生成视图、表单、URL、admin页面以及模板。
+
+5. django-q
+
+Django Q是一个原生Django分布式任务队列处理应用，通过Python的mutliprocessing模块功能实现。
+
+6. django-webpack-loader
+
+Django webpack loader对webpack-bundle-tracker的输出结果进行处理，让你可以在自己的Django应用中使用生成的bundles。
+
+7. django-hackathon-starter
+
+![](http://p3.pstatp.com/large/3d00042e50,59f718e5)
+
+如果你以前参加过黑客马拉松（hackathon），那么你一定会意识到项目准备阶段会花费大量时间。这是一个Django Web应用模板程序，可以帮助你快速生成应用。即使你不用这个库来参加黑客马拉松，Django Hackathon Starter也必定能够为你节省大量的开发时间，同时这个库也能用作开发者的学习指南。
+
+8. django-seed
+
+Django-seed通过faker库，为Django模型生成测试数据。该库支持Python和Django的最新版本。
+
+9. dockerizing-django
+
+![](http://p3.pstatp.com/large/610000e4cf,98d5d93b)
+
+这个Github仓库并不算一个Django库，而是realpython网站一篇相关教程的代码库，讲的是如何将Django应用Docker化。
+
+10. django-tenants
+
+该应用可以让django驱动的网站支持多个tenants，这个功能时通过PostgreSQL schemas实现的。这是每个SASS（软件即服务）网站的核心功能。
+
+更多Python相关内容，请查看编程派网站（http://codingpy.com)。

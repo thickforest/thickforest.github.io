@@ -1,0 +1,33 @@
+
+---
+layout: post
+title: 微软正式推出团队协作软件 Planner
+categories:
+- 今日头条
+tags:
+---
+				
+
+Microsoft Office 大家庭今天 又增加一名新成员：微软正式推出了团队协作软件Microsoft Planner，帮助用户更好地管理工作进度、指派任务、分享文档以及进行聊天等。这个新应用最早在去年秋天开始进行测试，正式发布以后将面临强大的竞争对手，比如 Atlassian JIRA Core 之类的专业软件，以及 Trello 和 Asana 等创业公司推出的其他易用工具。
+
+Planner 的功能酷似 Trello，也是充分利用“白板”（Boards）概念来有效组织任务。每个“白板”里都有单个“卡片”（Cards），而“卡片”又有它们自己的到期日、附件、分类和会话等。这些“卡片”还可以有自己的附件文档或照片，从而更轻松地看到某个“卡片”是做什么用的，而它们又可以被组织到名为“桶”（Buckets）的柱状物内，它们也可以进行颜色编码并优先得到处理。
+
+这个团队协作软件的另一个重要特征是“中枢”（Hub）：在“中枢”里，你可以追踪任务进度的整体进展，看谁跟上了工作进度，谁落在后面，过滤后参看自己的任务。
+
+相比 Trello 等竞争对手，微软团队协作软件的一个独特之处是，整合了微软的其他产品，这对已经购买了微软 Office 套装和相关服务的机构来说颇具吸引力。例如，Planner 已被集成到 Office 365 Groups，这意味着 Planner 上面的会话还会出现于 Outlook 2016、网页版 Outlook 以及 Outlook Groups Mobile Apps 上面。
+
+此外，Planner 还与 OneNote 进行了整合——微软表示，每一个计划都有专门为它创建的 OneNote。Planner 还支持 Office，这意味着用户可以将 Word、Excel 和 PowerPoint 文档粘贴到“卡片”中，接着再保存到 SharePoint Online 文件库中，进而还可以离线访问。
+
+![](http://p3.pstatp.com/large/74c0002d38a03c1fc40)
+
+作为 Microsoft Office 套装的一部分，Planner 其实是一款面向企业客户的工具，支持大公司所需要的许多技术规格，比如多个冗余备份、瞬时恢复以及兼容 HIPAA、FISMA、ISO27001 和 EU Model 等标准。
+
+实际上，微软很早以前就推出了项目管理工具 Project，但许多人发现这个工具太复杂，不太好用，无法满足他们的需要。若想充分挖掘 Project 的潜力，就需要有一个学习曲线，正因为如此，用户往往使用 Excel 来管理项目，或是投入更新的解决方案的怀抱，比如 Trello。
+
+不过，如果某个生产力应用试图与 Microsoft Office 这棵“摇钱树”争抢市场份额的话，微软往往会采取实际行动。例如，微软已经收购了 Yammer、Wunderlist、SwiftKey、Sunrise、Acompli 等多家创业公司，并考虑收购 Slack。以 Trello 为例，微软干脆推出了自家团队协作服务。
+
+Planner 还将满足微软企业客户对更轻型、更易用工具的需要，以及可替代 SharePointTasks 的工具的需要。早在 Planner 首次亮相之前，SharePoint Tasks 已经被微软官方应用商店上下架。一年前，如果你点击 SharePoint Tasks 页面，它会将你 导向 Planner 的网站，而那时 Planner 还没有正式推出。
+
+微软表示，Planner 将在未来几周内逐步向所有符合条件的 Office 365 客户推出，其中就包括 Office 365 企业版 E1-E5、企业基础版（Business Essentials）、企业高级版、Office 365 教育版的客户。在 Planner 正式推出以后，这些客户会看到 Planner 将自动出现在 Office 365 桌面启动器中。
+
+翻译：皓岳

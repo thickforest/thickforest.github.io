@@ -1,0 +1,75 @@
+
+---
+layout: post
+title: 浏览器缓存机制
+categories:
+- 今日头条
+tags:
+---
+				浏览器请求过程
+
+浏览器的请求整个处理流程包括：
+
+无缓存：直接发送Web请求获取响应，并根据响应进行缓存协商(是否缓存、缓存时间、ETag和Last-Modified)有缓存并且新鲜：直接使用缓存有缓存但不新鲜：使用If-None-Match或If-Modified-Since进行缓存重验证，若返回304直接使用缓存，返回200则读取响应并进行缓存协商
+
+流程图如下：
+
+![](http://p3.pstatp.com/large/32700073ae3b6be8856)
+
+
+
+缓存相关报文首部
+
+Cache-Control/Expires
+
+Web服务器在响应报文首部中通过Cache-Control和Expires指定当前资源的有效期，控制浏览器是否直接从浏览器中获取缓存还是重新发请求到服务器获取数据。Expires是HTTP/1.0的东西，它有一个问题就是它返回的是服务器时间，如果客户端时间与服务器时间差别很大则误差很大。HTTP/1.1开始支持Cache-Control，选择更多设置更细致，优先级高于Expires。具体首部取值和说明如下表：
+
+消息报头取值说明ExpiresSun, 15 Nov 2015 02:26:35 GMT通知浏览器在过期时间前可以直接从缓存中获取资源Pragmano-cache通知浏览器忽略缓存，每次请求直接发送到服务器，HTTP/1.0产物Cache-Controlno-cache通知浏览器忽略缓存，每次请求直接发送到服务器no-store通知浏览器不要进行资源缓存或Internet临时文件中public任何途径的缓存者包括本地缓存、代理服务器都可以缓存资源private只能是私有缓存者才能缓存此资源，通常是浏览器本地缓存must-revalidate在缓存没有进行再验证情况下，不能使用缓存max-age = [s]指明缓存的有效时长，从请求时间开始到过期时间之间的秒数
+
+Last-Modified/If-Modified-Since
+
+Web服务器在响应报文中通过首部Last-Modified来指示资源的最后修改时间。当缓存资源过期后(超过Control-Cache中max-age)，浏览器需要再次向Web服务器进行请求对缓存重新验证，请求时带上Last-Modified-Since: Last-Modified-Value。Web服务器收到请求后，会比对资源最后修改时间和If-Modified-Since值，若最后修改时间较新，说明资源最近被修改过，则响应资源内容并返回200；否则售卖资源未修改，返回304 Not Modified,浏览器继续使用缓存。
+
+ETag/If-None-Match
+
+Web服务器在响应报文中通过首部ETag告诉浏览器当前资源在服务器的唯一标识，ETag的作用是在缓存资源过期后，在重新进行请求对缓存资源重新验证时用来和Web服务器上资源进行ETag值比对。请求需带上首部If-None-Match: ETag-Value。
+
+ETag和Last-Modified的作用是一致的，ETag的出现是为了解决以下Last-Modified无法解决的问题：
+
+Last-Modified取值只能精确到秒，如果某些文件在1秒内被修改多次，是无法被发现的针对某些被定期生成资源，内容并没有变化，但Last-Modified却发生变化，导致文件无法缓存某些服务器不能精确得到文件最后的修改时间
+
+Last-Modified和ETag可以一起使用，服务器会优先验证ETag，一致情况下才会比对Last-Modified, 只有ETag和Last-Modified都比对通过情况下，才返回304。
+
+用户浏览器操作行为与缓存
+
+用户在使用浏览器时，会有各种操作，比如地址栏回车、刷新、强制刷新等，不同的行为下缓存有不同的表现，具体情况下见下表：
+
+行为Cache-Control取值缓存表现打开新窗口private/no-cache/must-revalidate重新访问Web服务器，不适用缓存max-age = [s]在s秒过期前使用缓存，过期后访问Web服务器进行再验证地址栏回车private/must-revalidate第一次访问时访问服务器，以后不再访问max-age = [s]在s秒过期前使用缓存，过期后访问Web服务器进行再验证no-cache每次都访问Web服务器后退private/max-age/must-revalidate不会重新访问Web服务器no-cache每次都访问Web服务器刷新任何取值每次都访问Web服务器，支持再验证缓存强制刷新任何取值每次都访问Web服务器，抛弃If-None-Match和If-Modified-Since,每次都返回200和内容
+
+相关示例
+
+无缓存请求示例：
+
+![](http://p3.pstatp.com/large/32300073a2ad61b4ed9)
+
+在不清除缓存，地址栏回车进行请求示例：
+
+![](http://p3.pstatp.com/large/32400073de9021b1a61)
+
+新开窗口打开，使用缓存示例：
+
+![](http://p1.pstatp.com/large/32600073c65ed98ba11)
+
+强制刷新，无视缓存重新请求服务器示例：
+
+![](http://p3.pstatp.com/large/32500028864264d23a3)
+
+内容发生修改，重验证返回200即响应内容示例:
+
+![](http://p3.pstatp.com/large/32600073c6669ccb66a)
+
+无法缓存的请求
+
+有些请求是无法被缓存的，其中包括；
+
+HTTP响应报文首部中包括Cache-Control：no-cache、pragma：no-cache或Cache-Control：max-age=0等需要根据Cookie、认证信息等决定输入内容的动态请求经过HTTPS安全加密的请求POST请求HTTP响应头中不包括Last-Modified/ETag，也不包含Cache-Control/Expires请求

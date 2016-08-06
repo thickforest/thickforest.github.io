@@ -1,0 +1,37 @@
+
+---
+layout: post
+title: RIPS自动化地挖掘Typecho源代码安全漏洞
+categories:
+- 今日头条
+tags:
+---
+				RIPS是一个源代码分析工具，它使用了静态分析技术，能够自动化地挖掘PHP源代码潜在的安全漏洞。渗透测试人员可以直接容易的审阅分析结果，而不用审阅整个程序代码。由于静态源代码分析的限制，漏洞是否真正存在，仍然需要代码审阅者确认。RIPS能够检测XSS, SQL注入, 文件泄露, LFI/RFI, RCE漏洞等。目前RIPS更新至0.55版。
+
+使用起来很简单，我们现在来对typehco1.0版本进行扫描试下效果
+
+环境安装
+
+rips并不需要特别的环境，只要能够正常运行php的环境即可。现在我们以ubuntu为例，简单说明一下apache环境的搭建。
+
+![](http://p3.pstatp.com/large/7fc0003f419615ec3d7)
+
+扫描漏洞
+
+我们以typecho最新版为例，对其进行扫描，看看效果。
+
+首先，我们下载最新版的typecho，并解压到/var/typecho目录下。
+
+cd /var/wget -O typecho.tar.gz https://github.com/typecho/typecho/releases/download/v1.0-14.10.10-release/1.0.14.10.10.-release.tar.gzmkdir typecho && tar xzvf typecho.tar.gz -C typecho
+
+然后浏览器访问rips，譬如http://1.1.1.1，path中填写typecho源代码所在路径，即/var/typecho，同时勾选“subdirs”，表示递归扫描子目录
+
+![](http://p3.pstatp.com/large/7da00087d593efbaec6)
+
+点击scan开始扫描，扫描结果如下：
+
+![](http://p3.pstatp.com/large/7fd0003f941142cd92e)
+
+共发现8个疑似问题！是不是小心脏有稍稍小激动？
+
+点击具体问题，即跳转到问题所在代码，对于安全审计工作非常方便！

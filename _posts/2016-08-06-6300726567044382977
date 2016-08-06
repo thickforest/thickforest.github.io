@@ -1,0 +1,15 @@
+
+---
+layout: post
+title: 高危漏洞被发现，Java/PHP/NodeJS/Ruby开发应用或中招
+categories:
+- 今日头条
+tags:
+---
+				IT之家讯 近日，一个广泛存在于Java、PHP、NodeJS和Ruby等流行语言开发应用的漏洞被发现，该漏洞存在于OpenAPI（Swagger Code Generator）中，属于参数注入漏洞，凡是整合OpenAPI的应用都会受到影响。
+
+![](http://p3.pstatp.com/large/97b0006fd73be87f70e)
+
+攻击者可以利用该漏洞在Swagger JSON文件中植入恶意代码，实现远程执行。值得注意的是，该漏洞早在2016年4月就已经被披露过细节以及修复补丁，但似乎并没有受到Swagger维护者的足够重视，因为他们从未回应此事。
+
+为了安全起见，相关开发者和技术人员应该加紧部署漏洞修复适宜，以便尽早杜绝该漏洞的潜在威胁。

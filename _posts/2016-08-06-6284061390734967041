@@ -1,0 +1,149 @@
+
+---
+layout: post
+title: 通过客户端加密保护数据
+categories:
+- 今日头条
+tags:
+---
+				客户端加密是指用户数据在发送给远端服务器之前就完成加密，而加密所用的密钥的明文只保留在本地，从而可以保证用户数据安全，即使数据泄漏别人也无法解密得到原始数据。
+
+本文介绍如何基于oss的现有python sdk版本, 通过客户端加密来保护数据。
+
+
+
+原理介绍
+
+用户本地维护一对rsa密钥( rsa_private_key和rsa_public_key)每次上传object时，随机生成一个AES256类型的对称密钥 data_key，然后用data_key加密原始content得到encrypt_content.用 rsa_public_key加密data_key, 得到encrypt_data_key, 作为用户的自定义meta放入请求头部，和encrypt_content一起发送到ossget object时，首先得到encrypt_content以及用户自定义meta中的encrypt_data_key用户使用 rsa_private_key解密encrypt_data_key得到data_key,然后用data_key解密encrypt_content得到原始content
+
+注：本文用户的密钥为非对称的RSA密钥, 加密object content时用的AES256-CTR算法, 详情可参考 PyCrypto Document。本文旨在介绍如何通过object的自定义meta来实现客户端加密，至于加密密匙类型及加密算法，用户可以根据自己的需要进行选择。
+
+
+
+架构图
+
+
+
+
+
+准备工作
+
+python sdk的安装和使用，参考python sdk 快速安装安装PyCrypto库 pip install pycrypto
+
+
+
+完整python 示例代码
+
+# -*- coding: utf-8 -*-
+
+import os
+import shutil
+import base64
+import random
+
+import oss2
+
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
+from Crypto import Random
+from Crypto.Util import Counter
+
+# aes 256, key always is 32 bytes
+_AES_256_KEY_SIZE = 32
+_AES_CTR_COUNTER_BITS_LEN = 8 * 16
+
+class AESCipher:
+    def __init__(self, key=None, start=None):
+        self.key = key
+        self.start = start
+        if not self.key:
+ self.key = Random.new.read(_AES_256_KEY_SIZE)
+        if not self.start:
+ self.start = random.randint(1, 10)
+        ctr = Counter.new(_AES_CTR_COUNTER_BITS_LEN, initial_value=self.start)
+        self.cipher = AES.new(self.key, AES.MODE_CTR, counter=ctr)
+
+    def encrypt(self, raw):
+        return self.cipher.encrypt(raw)
+
+    def decrypt(self, enc):
+        return self.cipher.decrypt(enc)
+
+# 首先初始化AccessKeyId、AccessKeySecret、Endpoint等信息。
+# 通过环境变量获取，或者把诸如“<你的AccessKeyId>”替换成真实的AccessKeyId等。
+#
+# 以杭州区域为例，Endpoint可以是：
+#   http://oss-cn-hangzhou.aliyuncs.com
+#   https://oss-cn-hangzhou.aliyuncs.com
+# 分别以HTTP、HTTPS协议访问。
+access_key_id = os.getenv('OSS_TEST_ACCESS_KEY_ID', '<你的AccessKeyId>')
+access_key_secret = os.getenv('OSS_TEST_ACCESS_KEY_SECRET', '<你的AccessKeySecret>')
+bucket_name = os.getenv('OSS_TEST_BUCKET', '<你的Bucket>')
+endpoint = os.getenv('OSS_TEST_ENDPOINT', '<你的访问域名>')
+
+# 确认上面的参数都填写正确了
+for param in (access_key_id, access_key_secret, bucket_name, endpoint):
+    assert '<' not in param, '请设置参数：' + param
+
+##### 0 prepare ########
+# 0.1 生成rsa key文件并保存到disk 
+rsa_private_key_obj = RSA.generate(2048)
+rsa_public_key_obj = rsa_private_key_obj.publickey
+encrypt_obj = PKCS1_OAEP.new(rsa_public_key_obj)
+decrypt_obj = PKCS1_OAEP.new(rsa_private_key_obj)
+
+# save to local disk 
+file_out = open("private_key.pem", "w")
+file_out.write(rsa_private_key_obj.exportKey)
+file_out.close
+file_out = open("public_key.pem", "w")
+file_out.write(rsa_public_key_obj.exportKey)
+file_out.close
+
+# 0.2 创建Bucket对象，所有Object相关的接口都可以通过Bucket对象来进行
+bucket = oss2.Bucket(oss2.Auth(access_key_id, access_key_secret), endpoint, bucket_name)
+obj_name = 'test-sig-1'
+content = "test content"
+
+#### 1 Put Object  ####
+# 1.1 生成加密这个object所用的一次性的对称密钥 encrypt_cipher, 其中的key 和 start为随机生成的value
+encrypt_cipher = AESCipher
+
+# 1.2 将辅助解密的信息用公钥加密后存到object的自定义meta中. 后续当我们get object时，就可以根据自定义meta，用私钥解密得到原始content
+headers = {}
+headers['x-oss-meta-x-oss-key'] = base64.b64encode(encrypt_obj.encrypt(encrypt_cipher.key))
+headers['x-oss-meta-x-oss-start'] = base64.b64encode(encrypt_obj.encrypt(str(encrypt_cipher.start)))
+
+# 1.3. 用 encrypt_cipher 对原始content加密得到encrypt_content
+encryt_content = encrypt_cipher.encrypt(content)
+
+# 1.4 上传object
+result = bucket.put_object(obj_name, encryt_content, headers)
+if result.status / 100 != 2:
+    exit(1)
+
+#### 2 Get Object ####
+# 2.1 下载得到加密后的object
+result = bucket.get_object(obj_name)
+if result.status / 100 != 2:
+    exit(1)
+resp = result.resp
+download_encrypt_content = resp.read
+
+# 2.2 从自定义meta中解析出之前加密这个object所用的key 和 start 
+download_encrypt_key = base64.b64decode(resp.headers.get('x-oss-meta-x-oss-key', ''))
+key = decrypt_obj.decrypt(download_encrypt_key)
+download_encrypt_start = base64.b64decode(resp.headers.get('x-oss-meta-x-oss-start', ''))
+start = int(decrypt_obj.decrypt(download_encrypt_start))
+
+# 2.3 生成解密用的cipher, 并解密得到原始content
+decrypt_cipher = AESCipher(key, start)
+download_content = decrypt_cipher.decrypt(download_encrypt_content)
+if download_content != content:
+    print "Error!"
+else:
+    print "Decrypt ok. Content is: %s" % download_content
+
+
+云栖社区站内文章，如需转载，请保留作者和出处（云栖社区），并邮件通知云栖社区（yqeditor@list.alibaba-inc.com）。

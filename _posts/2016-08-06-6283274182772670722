@@ -1,0 +1,171 @@
+
+---
+layout: post
+title: 服务器被暴力破解的解决办法（一）
+categories:
+- 今日头条
+tags:
+---
+				 场景：小王作为公司运维工程师，刚上班就收到一条短信，是Zabbix的报警邮件，说邮件服务器的进程数超过阀值。于是赶紧登录上去查看。
+
+ 这里说下分析的过程：
+
+1.既然说进程数超过阀值，肯定先查看进程：ps -ef；
+
+2.如果不能即时看到问题，那就动态显示：top，看看究竟是哪个程序占用这么多进程；
+
+3.最后确定了应该是courier-imap，但还不知道是什么原因导致；
+
+4.查看ip连接，确认是否是其存在问题：netstat -ant，发现有大量的110连接；
+
+![](http://p3.pstatp.com/large/5db0003afa6287cd53c)
+
+5.既然是收信服务，那就赶紧追踪查看邮件日志：tail -f /var/log/maillog；
+
+6.发现问题：日志里有大量的登录错误信息，发现是同一个 ip，并在用不同的用户名密码来暴力破解
+
+ 小王第一件事情就想起了防火墙，于是写了三条关于防火墙语句：
+
+iptables -A INPUT -p tcp --dport 22 -m recent --name ROUTER-SSH --update --seconds 300 --hitcount 3 -j DROP
+
+iptables -A INPUT -p tcp --dport 22 -m recent --name ROUTER-SSH --set -j ACCEPT
+
+iptables -A INPUT -p tcp --dport 22 -m limit --limit 3/hour --limit-burst 3 -j ACCEPT
+
+之后在与我闲谈的过程中，我了解到小王公司安全方面并不太重视，平时登陆是用的root，而且密码也是弱密码，于是我给他提出了如下的建议：
+
+服务器加固三个方案：
+
+1、密码足够复杂：密码的长度要大于8位最好大于14位。密码的复杂度是密码要尽可能有数字、大小写字母和特殊符号混合组成。
+
+我建议可以使用公司固定密码加个人密码结合的方式，每两周换一次密码。
+
+2、修改默认端口号 sshd 默认端口号： 22
+
+黑客平时可以使用nmap工具扫描到端口号的
+
+我给他做了下演示：
+
+ [root@xinsz08 ~]# rpm -ivh /mnt/test/Packages/nmap-5.21-4.el6.x86_64.rpm #安装nmap扫描工具
+
+[root@xinsz08 ~]# nmap 192.168.1.63 #扫描服务开放了哪些端口
+
+Starting Nmap 5.21 ( http://nmap.org ) at 2015-05-18 09:48 CST
+
+Nmap scan report for xuegod63.cn (192.168.1.63)
+
+Host is up (0.000027s latency).
+
+Not shown: 998 closed ports
+
+PORT STATE SERVICE
+
+22/tcp open ssh #这里我很容易就可以扫描出来是ssh端口
+
+111/tcp open rpcbind
+
+Nmap done: 1 IP address (1 host up) scanned in 0.30 seconds
+
+我将默认端口号22改为：8099
+
+[root@xinsz08 ~]# vim /etc/ssh/sshd_config #在ssh服务的配置文件里修改端口号
+
+改Port 22
+
+为：Port 8099
+
+[root@xinsz08~]# /etc/init.d/sshd restart #改完之后重启服务
+
+Stopping sshd: [ OK ]
+
+Starting sshd: [ OK ]
+
+再次扫描：
+
+[root@xinsz08 ~]# nmap 192.168.1.63
+
+Starting Nmap 5.21 ( http://nmap.org ) at 2015-05-22 21:13 CST
+
+Nmap scan report for xuegod63.cn (192.168.1.63)
+
+Host is up (0.000019s latency).
+
+Not shown: 998 closed ports
+
+PORT STATE SERVICE
+
+8099/tcp open hosts2-ns #此时就没办法确定是否是ssh远程链接端口了
+
+111/tcp open rpcbind
+
+测试：
+
+[root@xinsz08 ~]# ssh root@192.168.1.63 -p 8099 # 使用root用户登陆的时候必须使用端口才可以登陆
+
+ 注：改端口号的目的是为了迷惑黑客，不容易判断端口号和系统。
+
+3、不使用root用户名登录
+
+不使用用户名为root的帐号登录系统，但是要获得root超级管理员权限。
+
+注：判断一个用户是不是超级管理员，看的是用户的ID是否为0。
+
+例：创建一个普通帐号
+
+[root@xinsz08 ~]# useradd xinsz08 #创建一个用户
+
+[root@xinsz08 ~]# echo 123456 | passwd --stdin xinsz08
+
+Changing password for user xinsz08.
+
+passwd: all authentication tokens updated successfully.
+
+[root@xinsz08 ~]# vim /etc/passwd 
+
+改：root:x:0:0:root:/root:/bin/bash
+
+为：root:x:0:0:root:/sbin/nologin #不让root登录系统
+
+改：xinsz08:x:500:500::/home/top:/bin/bash
+
+为：xinsz08:x:0:0::/home/top:/bin/bash #改ID500为0，xinsz08就成root身份
+
+测试：
+
+[root@xuegod63 ~]# ssh root@192.168.1.63 -p 8099 #root登录不成功
+
+root@192.168.1.63's password: 123456
+
+Last login: Sun May 10 09:43:55 2015 from xinsz08.cn
+
+This account is currently not available.
+
+Connection to 192.168.1.63 closed.
+
+[root@xinsz0863 ~]# ssh xinsz08@192.168.1.63 -p 80
+
+xinsz08@192.168.1.63's password:
+
+Last login: Sun May 10 09:49:02 2015 from xinsz08.cn
+
+[root@xinsz08 ~]# whoami #查看当前登录系统的用户名
+
+root
+
+现在xinsz用户已经变成了root
+
+我又总结了下上面的三种方法：
+
+1、密码足够复杂：
+
+2、修改默认端口号
+
+3、不使用root用户名登录
+
+ 通过这样的三种方法就可以解决大部分的暴力破解问题了
+
+ 小王回到公司就立刻开始实验部署，那他后面又会遇到什么问题呢，我们拭目以待。
+
+ 我是辛舒展，专注云计算大数据方案，希望我的文字能给你带来不一样的声音和视角。
+
+ 微信公众号：xinsz08 个人微信号：15810802253

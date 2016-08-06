@@ -1,0 +1,27 @@
+
+---
+layout: post
+title: Apache Libcloud：将所有云连在一起的开源云库
+categories:
+- 今日头条
+tags:
+---
+				Apache Libcloud是时下头等云服务互操作性程序库，用于AWS、Apache CloudStack、谷歌云平台、微软Azure、OpenStack和VMware。目前，Apache Libcloud已进入1.0。 
+
+ZD至顶网软件频道消息： 一直以来，云面临的一个大问题是互操作性。日前，Apache软件基金会（ASF）针对此问题发布了云服务互操作性程序库Apache Libcloud 1.0版。
+
+![](http://p1.pstatp.com/large/94c0008c289d5b43380)
+
+大家可能没听说Libcloud，但Libcloud却是有年头的了。Libcloud代码始创于2009，是个Python库，它隐藏了不同云提供商应用程序编程接口（API）之间的差异，使得开发人员和系统管理员可以通过一个统一的、易于使用的应用接口来管理不同的云资源。
+
+在云发展的早期阶段，云服务提供商开始提供基础设施即服务（IaaS）虚拟机（VM）托管KVM、VMware或XenServer虚拟机。Apache Libcloud对这些平台之间的差异进行了抽象。其做法是提供一个单一的Python API，用于从多个云、管理环境和自动化服务器部署收集数据。云服务提供商在后来一段时间里出现演变，开始提供简单的平台即服务（PaaS），如DNS、负载均衡和备份，Libcloud也升级支持这一类的新云。
+
+Apache Libcloud副总裁Tomaž Muraus表示，“我们一开始做Apache Libcloud时，曾尝试创建一个云服务供应商标准API规范，有过很多挫败。我们决定建一个开源互操作性程序库，属于Apache软件基金会的一部分。Apache Libcloud 1.0版引入了强大的多云抽象，不仅可用于IaaS，也可用于DNS、存储、应用负载均衡、备份和容器即服务（CAAS）。”
+
+Libcloud是一个强大的开源项目，包括AWS、Apache CloudStack、Rackspace、谷歌云平台、微软Azure、VMware和OpenStack在内的50多个云提供商采用了Libcloud。Libcloud在这些系统了通常是作为一个程序库使用，用于多云集成和直接应用程序接口。
+
+大家可能也猜到了，Libcloud程序库也是DevOps开发商所喜爱的东西，他们希望自己的工具具有简单的多云自动化功能。SaltStack 首席技术官Thomas Hatch表示，“Apache Libcloud成功地打造了稳定可用的API，可用于云环境管理。假若没有它的话，要建立SaltStack云里云编排几乎是不可能。我会在我的项目里更多地用这个库，对此我十分地憧憬！”
+
+Apache Libcloud最新版支持GaaS、亚马逊EC2容器服务（ECS）、谷歌云容器引擎（GKE）和本地选项Kubernetes和Docker。Muraus给了以下解释，“Apache Libcloud提供简单的API抽象，可在私有云和公共云里部署Docker容器。我们见到希望从免费云或低成本云里受益的学术界和非营利组织采用该库，但我们仍将保持公共云兼容性，以供商界采用。”
+
+所以要问的不是“谁采用Libcloud？”而是“谁没有采用Libcloud？”假如阁下需要和多个云供应商合作或是要在混合云里干活，Libcloud是必须的。

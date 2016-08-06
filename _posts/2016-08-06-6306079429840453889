@@ -1,0 +1,19 @@
+
+---
+layout: post
+title: 渗透篇：PHPWeb截断上传拿SHELL
+categories:
+- 今日头条
+tags:
+---
+				转眼又是一段时间过去了，小编神游归来，奉上教学一篇。。。
+
+ 1，打开burpsuite，这款工具是java开发的，运行需要java tm 
+
+![](http://p1.pstatp.com/large/9df000a39a417548d11)
+
+![](http://p1.pstatp.com/large/a7800017113e5f2c5a8)
+
+![](http://p3.pstatp.com/large/a77000171381653a5b6)
+
+![](http://p1.pstatp.com/large/a780001711ea9509bcc)

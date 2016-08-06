@@ -1,0 +1,175 @@
+
+---
+layout: post
+title: 一种改进的TCP Westwood算法
+categories:
+- 今日头条
+tags:
+---
+				摘 要：无线网络存在高误码率、带宽变化大等特点，针对丢包类型多样化、拥塞控制中参数设置既盲目又单一化等问题，提出了一种TCP Westwood（简称TCPW）的改进算法TCP-NW，该算法根据网络中带宽的利用率来区分丢包类型并细化拥塞情况，并据此对CWND（拥塞窗口）和SSTHRESH（慢启动门限值）值进行调整。仿真实验表明，TCP-NW算法在网络时延、抖动、吞吐量等方面表现稳定，对于无线网络TCP的传输性能有较大的改善。
+
+0 引言
+
+随着网络技术飞速发展，网络中信息量急剧增长，拥塞的问题也日趋严重，网络出现拥塞时，如果处理不当，网络通信就会严重受阻，使网络处于一种接近瘫痪的状态。作为网络广泛使用的传输协议TCP为网络中的用户提供了可信和健壮的端到端网络数据通信服务，同时该协议一直备受大多数学者的关注，并取得了很多研究成果。如参考文献[1]中提出了一种无线传感器网络中基于跨层优化的拥塞控制算法；参考文献[2]提出了基于背景流量变换的组播拥塞控制算法；参考文献[3]中提出了一种高性能的TCP友好拥塞控制算法；参考文献[4]中提出了一种基于自同步原则的拥塞控制方法；参考文献[5]中提出一种基于双包探测技术的TCP Westwood算法；参考文献[6]提出一种基于非线性窗口增长的TCPW改进算法；参考文献[7]中提出了一种Mesh网络中基于区分服务的拥塞控制机制。这些算法都对TCP的拥塞控制机制从不同的方面作出了改进，但如何使得TCP协议更好地适应无线网络环境特性，依然是一个重要的研究课题。
+
+TCPW协议是针对无线特点而设计的，相对于TCP Reno表现出了更好的性能。但是在无线网络环境中TCPW协议无法区分丢包类型，即拥塞丢包和无线丢包（在网络没有出现拥塞时，也会出现丢包的现象，这时丢包原因往往由外界环境因素引起，使得网络本身传输信道的信号衰弱或干扰，把这种数据包丢失称为无线丢包），而且在拥塞处理中，参数的调整没有区分拥塞程度而作统一的处理，这些问题导致网络性能受到影响。本文根据TCPW协议存在的不足，提出了一种基于TCP的改进算法TCP-NW，算法通过测算网络中带宽及带宽利用率，根据带宽利用率来区分丢包类型并细化拥塞的不同场景，并据此对CWND和SSTHRESH值进行调整。仿真实验表明该算法在一定程度上可以区分丢包类型及拥塞程度，较大程度上提高了TCP性能。
+
+1 TCPW拥塞控制算法分析
+
+TCPW算法是专门针对无线网络提出的一种拥塞控制算法，是在TCP Reno版本上改进而得，在一定程度上提高了网络出现丢包时TCP的传输性能[8]。TCPW也是由“慢启动”、“拥塞避免”、“快速重传”和“快速恢复”四个部分组成。
+
+TCPW算法主要通过实时测量来估算网络中的带宽值，并利用带宽估计值来调整CWND和SSTHRESH值以达到拥塞控制的目的。基本流程是，通过持续不断地监测TCP目的端返回的ACK速率，从而计算出单位时间内TCP发送端发送的分组数目和数据包大小，计算出网络中的带宽估计值[9-10]。当出现拥塞收到3个重复ACK或RTO超时时，SSTHRESH和CWND的赋值如下：
+
+其中cuurent_bwe是带宽估计值，size 是数据包的大小，min_rtt_estimate是测量中的最小RTT。
+
+在收到3个重复ACK时，CWND值设置为SSTHRESH的当前值，而超时的情况下，CWND值设置为1。
+
+TCPW算法的不足之处主要有以下几个方面：
+
+（1）TCPW算法无法区分丢包类型。当网络中出现丢包时，TCPW算法都会按照拥塞丢包来处理，而不区分是无线丢包还是拥塞丢包。
+
+（2）TCPW算法在处理丢包时具有盲目性且单一。主要体现在CWND和SSTHRESH值的调整上，在出现丢包时，不管丢包原因也不分拥塞程度，单纯减小窗口值，降低数据的发送速率，这种处理会使得网络带宽利用率大幅度下降。
+
+2 TCP-NW算法原理
+
+针对TCPW算法的不足，提出了一种改进算法TCP-NW，TCP-NW算法的步骤如下：
+
+（1）计算网络带宽估计值
+
+通过TCPW协议中的带宽估计算法实时计算网络中的带宽估计值current_bwe，引入一个变量bwe_max，用于保存此过程中的current_bwe的最大值。
+
+（2）计算网络带宽利用率
+
+根据（1）中计算出的current_bwe和bwe_max的值，计算出网络中的带宽利用率。计算公式如式（2）所示：
+
+其中，current_bwe为当前带宽估计值，bwe_max为当前带宽估计值中的最大值，α∈（0，1]。
+
+由于网络中带宽利用率较低时，网络拥塞的可能性较小，如果网络中此时出现了数据丢包，则认定为出现了无线丢包。此算法中α∈（0，1/4]时，认定为无线丢包。
+
+（3）分别对不同情况下的丢包作出相应处理
+
+当在无线网络出现数据丢包时，根据计算出的网络带宽利用率来调整CWND和SSTHRESH值的大小。由于在网络环境下丢包的原因主要有三个重复的ACK和超时，因此两种情况下的调整如下：
+
+①收到三个重复ACK
+
+当出现无线丢包时（此时网络并没有发生拥塞），如果按照式（1）计算，SSTHRESH值会过度减小，CWND进而减小，从而降低了数据发送速率，浪费网络带宽，改进后的重新计算公式如式（3）所示：
+
+其中，α为当前网络的带宽利用率，计算公式如式（2）。
+
+式（3）虽然避免了在带宽利用率较低时将SSTHRESH值过度减小的问题，但是在带宽利用率较高时，依然存在此问题。为了解决此问题，将α值进行细化，重新计算公式如式（4）所示：
+
+算法伪代码如下：
+
+if（receive 3 dupacks）{
+
+if（0<α≤1/4）{
+
+null}
+
+if（1/4<α≤1/2）{
+
+ssthresh=current_bwe*（1-α）/size/8；
+
+cwnd=ssthresh+3MSS；
+
+}
+
+if（1/2<α≤1）{
+
+ssthresh=1/2*current_bwe/size/8；
+
+cwnd=ssthresh+3MSS；
+
+}}
+
+②RTO（重传计时器）超时
+
+当TCP发送端每发送一个报文时，为了防止数据包丢失，TCP发送端会启动一个重传计时器，如果发送端发送的数据包在计时器超时前没有收到该数据包的确认ACK，就会重传该数据报，而此时出现网络拥塞的程度要比收到3个重复ACK时严重，不论α如何取值，此时统一设置CWND的值为1，SSTHRESH值的计算公式如式（5）所示：
+
+
+
+算法伪代码如下：
+
+if（RTO timeout）{
+
+if（1/4<α<1/2）{
+
+ssthresh=current_bwe*（1-α）/size/8；
+
+cwnd=1；}
+
+if（α≤1/4）{null；}
+
+if（1/2<α<3/4）{
+
+ssthresh=current_bwe*α/size/8；
+
+cwnd=1；}
+
+if（3/4<α≤1）{
+
+ssthresh=1/2*current_bwe*（1-α）/size/8；
+
+cwnd=1；
+
+}}
+
+3 TCP-NW算法的仿真实验结果分析
+
+3.1 仿真实验环境
+
+
+
+仿真网络的拓扑结构如图1所示。节点N0、N1为TCP发送端，节点R0、R1为中间路由节点，节点N2、N3为TCP接收端。节点N0到R0之间、节点N1到R0之间、节点R1到N2和节点R1到N3之间建立延时为3 ms、带宽为10 Mb/s的双向链路。在节点R0和R1之间建立延时为2 ms、带宽为5 Mb/s的双向链路，此链路作为瓶颈链路。节点N0向节点N2发送数据，节点N1向节点N3发送数据，节点N0和节点N2之间建立TCP背景业务，数据通信业务为FTP数据流，数据包大小为 1 000 packets。仿真实验在仿真模拟工具NS2（Network Simulator Version2）下进行，NS2的版本为NS2.35[11]。
+
+3.2 仿真实验结果分析
+
+实验主要从端到端时延、抖动、吞吐量以及不同链路丢包率下平均吞吐量4个方面进行实验结果的对比。各个对比实验图如图2~图4所示。
+
+
+
+图2中delay-TCPReno、delay-TCPW、delay-TCP-NW分别为TCP Reno、TCP Westwood、TCP-NW三种算法下时延大小的变化值。从图中可以看出TCP-NW算法下的时延值变化更加平滑，端到端的时延更小。
+
+
+
+图3中jitter-Reno、delay-Westwood、delay-TCP-NW分别为TCP Reno、TCP Westwood、TCP-NW三种算法下的网络抖动的变化值。从图中可以看出TCP-NW算法下的抖动值变化幅度更加平滑，证明了网络的稳定性。
+
+
+
+图4中throughput-Reno、throughput-Westwood、throughput-NW分别为TCP Reno、TCP Westwood、TCP-NW 算法下得到的系统吞吐的大小。通过仿真实验结果可以看出，TCP-NW算法下的系统吞吐量最大。
+
+为了更好地验证TCP-NW算法对于丢包类型的区分，分别在不同链路误码率实验环境下对TCP Reno、TCP Westwood、TCP-NW三种算法进行了平均吞吐量的对比，如表1所示。
+
+
+
+表1中分别为TCP-Reno、TCPW、TCP-NW算法在无线丢包率分别为1%、2%、3%、4%的链路下的系统平均吞吐量，从中可以看出TCP-NW算法不同链路丢包率的情况下平均吞吐量最高，并且随着无线丢包率的升高，TCP-NW平均吞吐量下降的程度最少，说明了TCP-NW算法在一定程度上可以区分出无线丢包和拥塞丢包。
+
+综合仿真实验结果表明，本文改进的TCP-NW算法能有效地改善无线网络环境中因无线丢包而过多减小CWND和SSTHRESH值的问题，并可以在一定程度上区分无线丢包和拥塞丢包。在发生无线丢包时，不至于过多减小发送速率，从而更加充分利用网络带宽，很大程度上提高TCP的传输性能。
+
+4 结论
+
+本文针对TCPW算法在无线网络环境中存在的不足之处，提出了一种改进的TCP-NW拥塞控制算法。通过实时计算网络中的可用带宽，根据带宽的变化来区分不同的丢包类型以及在不同类型的丢包情况下对CWND和SSTHRESH值进行调整。通过仿真实验表明，与TCPW相比，TCP-NW算法在端到端时延、抖动性、系统吞吐量等方面性能都有提升，较大程度上提高了无线TCP的传输性能。
+
+参考文献
+
+[1] 张永敏，徐伟强，黄炯，等.Ad Hoc网络节能型功率控制与拥塞控制的跨层优化[J].软件学报，2013，24（4）：900-914.
+
+[2] 陶益坤，朱艳琴，罗喜召.基于背景流变化特征的组播拥塞控制算法[J].计算机应用与软件，2012，29（2）：48-50.
+
+[3] UTSUMI S， ZABIR S M S. A new high-performance TCP friendly congestion control over wireless networks[J]. Journal of Network and Computer Applications，2014，41（3）：369-378.
+
+[4] HU W， XIAO G. Self-clocking principle for congestion control in the Internet[J]. Automatica，2012，48（2）：425-429.
+
+[5] 袁鹏飞，郑涛，杨李冬，等.一种基于CAPPROBE带宽估计的TCP Westwood算法[J].厦门大学学报（自然科学版），2014，54（4）：469-476.
+
+[6] 赵文波，孙小科，马草川.基于非线性窗口增长的TCP Westwood改进算法[J].计算机应用，2011，31（9）：2344-2348.
+
+[7] 俞浚，白光伟，沈航.IEEE 802.16 Mesh网基于区分服务的拥塞控制机制[J].计算机应用研究，2014，31（9）：2811-2814.
+
+[8] SHETH A M， PATEL K D， CHAUDHARI J P， et al. Analysis of TCP Westwood NR protocol in congested and lossy network[J]. International Journal of Engineering and Technology， 2013，3（4）：477-482.
+
+[9] CASETTI C， GERLA M， MASCOLO S， et al. TCP Westwood： end-to-end congestion control for wired/wireless networks [J]. Wireless Networks， 2002， 8（5）：467-479.
+
+[10] GERLA M， SANADIDI M Y， WANG R， et al. TCP Westwood： congestion window control using bandwidth estimation[C]. Global Telecommunications Conference， 2001. IEEE， 2001：1698-1702.
+
+[11] UCB/LBNL/VINT. Network simulator ns（version2） [EB/OL].（2010-12-19）[2014-11-10]. http：//www.isi.edu/nsnam/ns.

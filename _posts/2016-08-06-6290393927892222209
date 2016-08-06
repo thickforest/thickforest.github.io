@@ -1,0 +1,77 @@
+
+---
+layout: post
+title: 正常复制粘贴文本 也可落入黑客圈套
+categories:
+- 今日头条
+tags:
+---
+				一周信息安全要闻速览：
+
+Pastejacking CTRL+V粘贴劫持攻击
+
+攻击者可以添加恶意粘贴劫持Java代码至整个页面，并且当用户在控制台内粘贴任何内容，他们可能就潜伏在你背后偷偷摸摸运行命令。如果与技术支持页面或钓鱼邮件有关联，此攻击也许会带来非常严重的后果。用户可能认为他们正复制正常的文本至控制台，然而事实上，他们正中了恶意攻击者的圈套。
+
+微信通过转账手续费成功止损 抢占支付宝10%市场份额
+
+实行用户费用并不是单纯的节省成本之举。分析师们表示，对提现收费将使存在微信钱包的现金更具“粘性”。腾讯的补贴帮助微信吸引了数以百万计的用户，并在一年里提振了交易量，在此期间支付给商家（如超市和餐馆）的线上至线下(O2O)移动支付出现爆炸式增长。
+
+翻倍增长 我国2015年12万网络安全事件
+
+网页仿冒事件占据了接近六成这个比例让人触目惊心，而这其中金融类网页的危害最为严重。由于涉及到了用户的金融信息，一旦用户信以为真，将直接导致用户的经济财产受到严重威胁。如何提升用户的甄别假冒网站能力成为互联网业界的一大难题。
+
+新大陆6.8亿收购全国收单机构国通星驿 第一季度营收近1亿
+
+国通星驿是国内拥有全国性收单业务支付牌照的43家机构之一，主营业务为向商户提供银行卡收单和其他增值业务，目前已积累了大量客户资源，具有丰富的银行卡收单及增值服务经验，沉淀了海量高频的支付数据，具有较强的行业竞争力和盈利能力。
+
+证监会：第三方支付机构挂牌新三板重启
+
+证监会周五宣布对金融类机构在新三板挂牌融资做出原则性安排：国家金融管理部门批准设立并颁发许可证的金融机构，以及符合条件的私募基金机构可以在新三板挂牌和融资。全国股转公司应制定具体挂牌条件，从严监管已挂牌金融类机构，并实施差异化信息披露及监管要求。
+
+信息和技术：
+
+发展共享经济打破“信息孤岛” 强化信息网络和数据安全
+
+如果我们把以大数据新业态代表的创新理念和传统行业长期孕育的工匠精神相结合，使新旧动能融合发展，将有力推动虚拟世界与现实世界融合发展，就会使生产管理经营模式发生变革，重塑产业链、供应链、价值链，促进新动能蓬勃发展、传统动能焕发生机，打造中国经济“双引擎”，实现“双中高”。
+
+安全漏洞周报
+
+上周漏洞基本情况
+
+上周信息安全漏洞威胁整体评价级别为中。
+
+国家信息安全漏洞共享平台（以下简称CNVD）上周共收集、整理信息安全漏洞219个，其中高危漏洞83个、中危漏洞123个、低危漏洞13个。漏洞平均分值为6.26分。上周收录的漏洞中，涉及0day漏洞5个（占2%）。其中互联网上出现“eXtplorer目录遍历漏洞”等零日代码攻击漏洞，请使用相关产品的用户注意加强防范。此外，上周CNVD接到的涉及党政机关和企事业单位的事件型漏洞总数1064个，与之前一周（1185个）环比下降10%。
+
+上周重要漏洞信息
+
+1、Adobe产品安全漏洞
+
+Adobe Acrobat DC等都是美国奥多比（Adobe）公司的产品。Acrobat DC是一套桌面版PDF解决方案；AcrobatReader DC是一套用于查看、打印和批注PDF的工具。Classic和Continuous是AcrobatDC和Acrobat Reader DC产品下载中心所提供的两种更新机制。Adobe Flash Player是美国奥多比（Adobe）公司的一款跨平台、基于浏览器的多媒体播放器产品。上周，上述产品被披露存在内存破坏漏洞，攻击者利用漏洞可执行任意代码。
+
+CNVD收录的相关漏洞包括：多款Adobe产品内存破坏漏洞（CNVD-2016-03144、CNVD-2016-03145、CNVD-2016-03146、CNVD-2016-03147、CNVD-2016-03148、CNVD-2016-03149、CNVD-2016-03152、CNVD-2016-03153）等。上述漏洞的综合评级为“高危”。目前，厂商已经发布了上述漏洞的修补程序。在此提醒用户及时下载补丁更新，避免引发漏洞相关的网络安全事件。
+
+2、Cisco产品安全漏洞
+
+Cisco Web Security Appliance（WSA）是美国思科（Cisco）公司的一套Web安全设备。该设备提供基于SaaS的访问控制、实时网络报告和追踪、制定安全策略等功能。Cisco Adaptive Security Appliance（ASA，自适应安全设备）是美国思科（Cisco）公司的一套防火墙设备。CiscoUnified Computing System（UCS）Central是美国思科（Cisco）公司的一套对Cisco UCS服务器域进行管理的软件。 CiscoIOS on Industrial Ethernet（IE）4000和Industrial Ethernet（IE）5000是美国思科（Cisco）公司的一套运行于CiscoIE 4000和5000系列交换机产品中的操作系统。Cisco Cloud Network AutomationProvisioner是一套云网络自动化配置软件。上周，上述产品被披露存在跨站脚本、SQL注入和拒绝服务漏洞，攻击者利用漏洞可注入任意Web脚本或HTML，获取数据库数据和发起拒绝服务攻击。
+
+CNVD收录的相关漏洞包括：Cisco Web Security Appliance AsyncOS拒绝服务漏洞、CiscoWeb Security Appliance AsyncOS拒绝服务漏洞（CNVD-2016-03366、CNVD-2016-03367、CNVD-2016-03368）、CiscoAdaptive Security Appliance Ipsec代码拒绝服务漏洞、Cisco Unified Computing System Central跨站脚本漏洞、CiscoCloud Network Automation Provisioner SQL注入漏洞、Cisco Industrial Ethernet 4000和Ethernet5000 IOS拒绝服务漏洞等。其中，“Cisco Web Security Appliance AsyncOS拒绝服务漏洞、CiscoWeb Security Appliance AsyncOS拒绝服务漏洞（CNVD-2016-03366、CNVD-2016-03367、CNVD-2016-03368）”的综合评级为“高危”。目前，厂商已经发布了上述漏洞的修补程序。在此提醒用户及时下载补丁更新，避免引发漏洞相关的网络安全事件。
+
+3、IBM产品安全漏洞
+
+IBM Marketing Platform是美国IBM公司的一套营销平台。IBM Emptoris Sourcing是美国IBM公司的一套寻源到合同解决方案。IBMCognos TM1是美国IBM公司的一套用于规划、预算编制、预测和分析的企业规划软件。IBM Rational Collaborative LifecycleManagement（CLM）等都是美国IBM公司的产品。IBM Rational CLM、RationalTeam Concert（RTC）和Rational Engineering Lifecycle Manager都是协作化生命周期管理解决方案；RationalQuality Manager（RQM）是一套协作的、基于Web的质量管理解决方案；Rational Requirements Composer和RationalDOORS Next Generation都是需求管理解决方案。上周，上述产品被披露存在多个安全漏洞，攻击者利用上述漏洞可执行任意SQL命令、注入任意Web脚本或HTML、泄露敏感信息和发起拒绝服务攻击等。
+
+CNVD收录的相关漏洞包括：IBM Marketing Platform SQL注入漏洞、IBMMarketing Platform SQL注入漏洞（CNVD-2016-03333）、IBMMarketing Platform跨站脚本漏洞、IBM Emptoris Sourcing开放重定向漏洞、IBMCognos TM1拒绝服务漏洞、多款IBM Rational产品跨站脚本漏洞、多款IBM Rational产品权限获取漏洞、IBMRational Team Concert HTML注入漏洞等。目前，厂商已经发布了上述漏洞的修补程序。在此提醒用户及时下载补丁更新，避免引发漏洞相关的网络安全事件。
+
+4、Linux产品安全漏洞
+
+Linux kernel是美国Linux基金会发布的操作系统Linux所使用的内核。上周，上述产品被披露存在安全绕过、信息泄露、内存错误引用和拒绝服务漏洞，允许攻击者利用漏洞绕过安全限制、泄露敏感信息、执行任意代码和发起拒绝服务攻击。
+
+CNVD收录的相关漏洞包括：Linux kernel信息泄露漏洞（CNVD-2016-03218、CNVD-2016-03352）、Linux kernel拒绝服务漏洞（CNVD-2016-03217、CNVD-2016-03194、CNVD-2016-03199）、Linuxkernel内存错误引用漏洞（CNVD-2016-03350）、Linux kernel BPF拒绝服务漏洞、Linuxkernel安全绕过漏洞（CNVD-2016-03201）等。其中，“Linux kernel信息泄露漏洞（CNVD-2016-03352）、Linuxkernel内存错误引用漏洞（CNVD-2016-03350）”漏洞的综合评级为“高危”。目前，厂商已经发布了上述漏洞的修补程序。在此提醒用户及时下载补丁更新，避免引发漏洞相关的网络安全事件。
+
+5、eXtplorer目录遍历漏洞
+
+eXtplorer是一套基于PHP的在线文件管理程序，它支持在线浏览文件和文件夹以及作为FTP客户端登录FTP服务器。上周，eXtplorer被披露存在目录遍历漏洞，攻击者可借助包含‘../’字符的存档内容利用该漏洞覆盖任意文件。目前，互联网上已经出现了针对该漏洞的攻击代码，厂商尚未发布该漏洞的修补程序。在此提醒广大用户随时关注厂商主页，以获取最新版本。
+
+CFCA评论
+
+小结：上周Adobe产品被披露存在内存破坏漏洞，攻击者利用漏洞可执行任意代码。此外，Cisco、IBM、Linux等多款产品被披露存在多个安全漏洞，攻击者可利用漏洞注入任意Web脚本或HTML、泄露敏感信息、执行任意代码和发起拒绝服务攻击等。另外，eXtplorer被披露存在目录遍历漏洞，攻击者可借助包含‘../’字符的存档内容利用该漏洞覆盖任意文件。建议相关用户随时关注上述厂商主页，及时获取修复补丁或解决方案。

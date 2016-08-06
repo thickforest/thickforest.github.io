@@ -1,0 +1,37 @@
+
+---
+layout: post
+title: 免费网站漏洞扫描仪检查你的网站服务器是否身陷安全问题
+categories:
+- 今日头条
+tags:
+---
+				Zerocopter零时差攻击扫描仪，检查你的网站服务器是否身陷安全问题
+
+早期我曾经负责维护非常古老的服务器，当时必须靠自己手动更新系统程序，尤其在某些版本又有很严重的安全性问题，若一不注意很容易就让服务器陷入危险。这几年陆续出现几个蛮大的安全弱点，例如：Heartbleed或Shellshock，对于有在管理服务器的使用者来说一定不陌生！这些问题虽被适当揭露，仍有很多服务器尚未进行更新或修复，如果你想知道自己的网站或服务器是否已对这些弱点「免疫」，可以到Zerocopter进行检查。
+
+![](http://p3.pstatp.com/large/5dd0005d11f33489e8f)
+
+Zerocopter是一款网站漏洞扫描仪，只要输入网址或主机名称就能搜寻是否有潜在安全问题，目前可以侦测的弱点包括Drown（CVE-2016-0800）、Heartbleed（CVE-2014-0160）、Ghost（CVE-2015-0235）以及Shellshock（CVE-2014-6271）。
+
+这些漏洞的安全层级都很高，影响范围大，如果有找到问题记得赶快找时间修复。
+
+站点名称：Zerocopter
+
+网站连接：https://zerocopter.com/zds
+
+使用教学
+
+STEP 1
+
+开启Zerocopter的漏洞扫描仪（Vulnerability Scanner）功能后，输入你要检测的网站网址或主机名称（Hostname），按下「Scan」来进行扫描。
+
+![](http://p3.pstatp.com/large/5db0005d427e7eb008a)
+
+STEP 2
+
+扫描时前面的圆圈会一直旋转，整个过程可能需要最多十分钟才能完成。
+
+![](http://p3.pstatp.com/large/5da0005d5ff8015adf5)
+
+![](http://p9.pstatp.com/large/5dc0005d4f3eb1c29d8)
